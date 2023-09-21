@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"mygin/router"
 
 	"github.com/gin-gonic/gin"
@@ -13,7 +14,7 @@ func main() {
 	r.StaticFile("/static/file1", "static/数.txt")
 
 	r.GET("/", rtHTML)
-	r.GET("/dingxiang", rRedirect)
+	r.POST("/dingxiang", rRedirect)
 	r.GET("/json", rtJSON)
 
 	//导入文件写的路由
@@ -33,10 +34,20 @@ func rtJSON(c *gin.Context) {
 
 // 响应html
 func rtHTML(c *gin.Context) {
+	//获取get请求的参数
+	// fmt.Println(c.Query("user")) //使用变量名获取参数值
+
 	c.HTML(200, "index.html", gin.H{"time": "疯疯"})
 }
 
 // 重定向
 func rRedirect(c *gin.Context) {
-	c.Redirect(301, "/html1")
+	//获取post请求的参数值
+	// message := c.PostForm("user")   //方法1
+	forms, err := c.MultipartForm() //方法2， 接收所有的form参数 注意：使用这个方法要在form表单属性中设置enctype
+
+	fmt.Println("表单多：", forms, err)
+	fmt.Println("表单多：", forms)
+	// fmt.Println("post信息为：", message)
+	c.HTML(200, "test.html", gin.H{"message": "message"})
 }

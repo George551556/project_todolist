@@ -9,7 +9,10 @@
     hello {{.time}}
 
     <table>
-        <form action="/dingxiang" method="get">
+        <form action="/dingxiang" method="post" enctype="multipart/form-data">
+            <input name="user"><br>
+            <input name="user"><br>
+            <input type="file" name="file"><br>
             <input type="submit">
         </form>
     </table>
