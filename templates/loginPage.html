@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    登录页面
+    <!-- <form action="/authen/login" method="post"> -->
+    <input id="username"placeholder="账号">
+    <input id="password" type="password"placeholder="密码">
+    <button id="submit">登录</button>
+</body>
+<script>
+    var submit = document.getElementById("submit");
+    submit.addEventListener("click", ()=>{
+        var this_username = document.getElementById("username");
+        var this_password = document.getElementById("password");
+        var username_1 = this_username.value;
+        var password_1 = this_password.value;
+        
+        const formData = new FormData()
+        formData.append('username' , username_1);
+        formData.append('password', password_1);
+
+        fetch("/authen/login", {
+            method: 'POST',
+            body: formData,
+            redirect: 'follow', //添加此选项以自动处理重定向
+        }).then(response =>{
+            const status = response.status;
+            if(status === 200){
+                response.json().then(data =>{
+                    const id = data.id;
+                    const nickname = data.nickname;
+                    localStorage.setItem('id', id);
+                    localStorage.setItem('nickname', nickname);
+                    window.location.href = "/control/totestpage";
+                })
+            }
+            else{
+                alert('账密错误')
+            }
+        })
+    })
+</script>
+</html>

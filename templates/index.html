@@ -6,16 +6,15 @@
     <title>Document</title>
 </head>
 <body>
-    hello {{.time}}
+    list首页
+    <form action="/control/tologinpage" method="get">
+        <input type="submit" value="登陆">
+    </form>
+    <form action="/control/tosignuppage" method="get">
+        <input type="submit" value="注册">
+    </form>
 
-    <table>
-        <form action="/dingxiang" method="post" enctype="multipart/form-data">
-            <input name="user"><br>
-            <input name="user"><br>
-            <input type="file" name="file"><br>
-            <input type="submit">
-        </form>
-    </table>
+    
     
 </body>
 </html>

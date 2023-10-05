@@ -9,5 +9,7 @@ gin框架模板
 
 5. 必要命令：
    go mod init [模块名] 
-
+   go get -u github.com/mongodb/mongo-go-driver   安装mongodb驱动
    go get -u github.com/gin-gonic/gin
+
+   最后使用 go mod tidy 整理包

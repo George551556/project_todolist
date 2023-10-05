@@ -2,12 +2,16 @@ package main
 
 import (
 	"fmt"
-	"mygin/router"
+	"todolist/router"
+	"todolist/utils"
 
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
+
+	// utils.Db_createOneUser(2020, "123asd", "小猪佩奇")
+
 	r := gin.Default()
 	//加载模板目录下模板文件
 	r.LoadHTMLGlob("templates/*")
@@ -16,9 +20,11 @@ func main() {
 	r.GET("/", rtHTML)
 	r.POST("/dingxiang", rRedirect)
 	r.GET("/json", rtJSON)
-
+	r.GET("/testdb", utils.TestDB)
 	//导入文件写的路由
 	router.InitApi(r)
+	router.InitControl(r)
+	router.InitAuthen(r)
 
 	r.Run(":8000") // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 }

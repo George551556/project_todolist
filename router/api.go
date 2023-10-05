@@ -1,7 +1,7 @@
 package router
 
 import (
-	"mygin/router_func"
+	"todolist/router_func"
 
 	"github.com/gin-gonic/gin"
 )
