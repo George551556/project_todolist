@@ -1,11 +1,197 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+  <title>TodoList</title>
+  <style>
+    /* CSS样式 */
+    .todo-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .todo-item .actions {
+      display: flex;
+      gap: 5px;
+    }
+    .modal {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+  </style>
 </head>
 <body>
-    用户主页，欢迎{{.message}}
+  <div id="user-info">
+    <!-- 用户名称 -->
+  </div>
+  <button id="add-item-btn">添加事项</button>
+  <div id="todo-list">
+    <!-- 待办事项列表 -->
+  </div>
+
+  <!-- 添加事项弹窗 -->
+  <div id="add-item-modal" class="modal">
+    <input type="text" id="item-content" placeholder="输入任务内容">
+    <button id="add-item-submit">提交</button>
+  </div>
+
+  <!-- 修改事项弹窗 -->
+  <div id="edit-item-modal" class="modal">
+    <input type="text" id="edit-item-content">
+    <button id="edit-item-submit">提交</button>
+  </div>
+
+  <!-- JavaScript代码 -->
+  <script>
+    // 获取DOM元素
+    const userInfoElement = document.getElementById('user-info');
+    const addItemBtn = document.getElementById('add-item-btn');
+    const todoListElement = document.getElementById('todo-list');
+    const addItemModal = document.getElementById('add-item-modal');
+    const addItemSubmitBtn = document.getElementById('add-item-submit');
+    const editItemModal = document.getElementById('edit-item-modal');
+    const editItemContentInput = document.getElementById('edit-item-content');
+    const editItemSubmitBtn = document.getElementById('edit-item-submit');
+
+    // 从后端获取的数据---------------------------------------
+    // const userData = {
+    //   name: 'Jack',
+    //   todoList: [
+    //     { id: 1, content: '任务内容1', created: '2023-10-04', completed: false },
+    //     { id: 2, content: '任务内容内容内容内容2', created: '2023-10-04', completed: true },
+    //     // 其他待办事项...
+    //   ]
+    // };
+    const formData = new FormData();
+    formData.append('userid', localStorage.getItem('userid'));
+    fetch("/userpro/getitems", {
+        method:'POST',
+        body:formData,
+    }).then(response =>{
+        //此处获取返回的事项数据，可以进行渲染renderTodoList()
+        response.json().then(data =>{
+            // console.log(data.items);
+            renderTodoList(data.items)
+
+        })
+    })
+
+    // 显示用户信息和待办事项列表
+    const userid = localStorage.getItem('userid');
+    const nickname = localStorage.getItem('nickname');
+    const welcomeInformation = "欢迎"+userid+"号用户,"+nickname;
+    userInfoElement.textContent = welcomeInformation;
+    renderTodoList();
+
+    // 渲染待办事项列表的函数
+    function renderTodoList(items) {
+      todoListElement.innerHTML = '';
+      items.forEach(item => {
+        // 创建待办事项元素
+        const todoItemElement = document.createElement('div');
+        todoItemElement.classList.add('todo-item');
+        // 设置待办事项样式属性
+        todoItemElement.style.backgroundColor = 'lightblue';
+        todoItemElement.style.border = '2px solid gray';
+        todoItemElement.style.height = 'auto';
+        todoItemElement.style.minHeight  = '45px'
+        // 暂时保存该事项对应的唯一Id!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        const itemId = item.Id;
+        // 创建任务内容元素
+        const contentElement = document.createElement('div');
+        contentElement.textContent = item.Content;
+        contentElement.style.width = '60%'
+        // 创建创建时间元素
+        const createdElement = document.createElement('div');
+        //修改优化时间类型  2023-10-05T16:09:02.427+08:00  =>  2023-10-05 16:09
+        createdElement.textContent = "创建时间：" + item.CreateTime.slice(0, 16);
+        // 创建完成状态元素
+        const completedElement = document.createElement('div');
+        completedElement.textContent = item.State ? '已完成' : '未完成';
+        todoItemElement.style.backgroundColor = item.State? 'white':'lightblue'
+
+        // 创建操作按钮容器元素
+        const actionsElement = document.createElement('div');
+        actionsElement.classList.add('actions');
+        // 创建修改按钮
+        const editButton = document.createElement('button');
+        editButton.textContent = '修改';
+        editButton.addEventListener('click', () => openEditModal(item));
+        // 创建删除按钮
+        const deleteButton = document.createElement('button');
+        deleteButton.textContent = '删除';
+        deleteButton.addEventListener('click', () => deleteItem(item));
+        // 创建完成按钮
+        const completeButton = document.createElement('button');
+        completeButton.textContent = '完成';
+        completeButton.addEventListener('click', () => completeItem(item));
+        // 将修改、删除和完成按钮添加到操作按钮容器元素中
+        actionsElement.appendChild(editButton);
+        actionsElement.appendChild(deleteButton);
+        actionsElement.appendChild(completeButton);
+        // 将任务内容、创建时间、完成状态和操作按钮容器添加到待办事项元素中
+        todoItemElement.appendChild(contentElement);
+        todoItemElement.appendChild(createdElement);
+        todoItemElement.appendChild(completedElement);
+        todoItemElement.appendChild(actionsElement);
+        // 将待办事项元素添加到待办事项列表中
+        todoListElement.appendChild(todoItemElement);
+      });
+    }
+
+    // 打开添加事项弹窗
+    addItemBtn.addEventListener('click', () => {
+      addItemModal.style.display = 'block';
+    });
+
+    // 提交添加事项
+    addItemSubmitBtn.addEventListener('click', () => {
+      const content = document.getElementById('item-content').value;
+      // 发送到后端保存数据的逻辑...
+
+      // 关闭弹窗并刷新列表
+      addItemModal.style.display = 'none';
+      renderTodoList();
+    });
+
+    // 打开修改事项弹窗
+    function openEditModal(item) {
+      editItemContentInput.value = item.content;
+      editItemModal.style.display = 'block';
+      // 保存当前修改的事项数据...
+    }
+
+    // 提交修改事项
+    editItemSubmitBtn.addEventListener('click', () => {
+      const newContent = editItemContentInput.value;
+      // 发送到后端更新数据的逻辑...
+
+      // 关闭弹窗并刷新列表
+      editItemModal.style.display = 'none';
+      renderTodoList();
+    });
+
+    // 删除事项
+    function deleteItem(item) {
+      // 发送到后端删除数据的逻辑...
+
+      // 刷新列表
+      renderTodoList();
+    }
+
+    // 完成事项
+    function completeItem(item) {
+      // 发送到后端更新数据的逻辑...
+
+      // 刷新列表
+      renderTodoList();
+    }
+  </script>
 </body>
 </html>

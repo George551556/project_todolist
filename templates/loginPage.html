@@ -8,7 +8,7 @@
 <body>
     登录页面
     <!-- <form action="/authen/login" method="post"> -->
-    <input id="username"placeholder="账号">
+    <input id="username"placeholder="账号" type="number">
     <input id="password" type="password"placeholder="密码">
     <button id="submit">登录</button>
 </body>
@@ -34,13 +34,13 @@
                 response.json().then(data =>{
                     const id = data.id;
                     const nickname = data.nickname;
-                    localStorage.setItem('id', id);
+                    localStorage.setItem('userid', id);
                     localStorage.setItem('nickname', nickname);
-                    window.location.href = "/control/totestpage";
+                    window.location.href = "/control/tousermainpage";
                 })
             }
             else{
-                alert('账密错误')
+                alert('账号或密码错误');
             }
         })
     })

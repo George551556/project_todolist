@@ -10,11 +10,7 @@ import (
 
 func main() {
 	// utils.Db_findItems(4)
-	if utils.Db_deleteItem(6) {
-		fmt.Println("aaa")
-	} else {
-		fmt.Println("bbb")
-	}
+
 	// utils.Db_createOneUser(2020, "123asd", "小猪佩奇")
 
 	r := gin.Default()
@@ -30,6 +26,7 @@ func main() {
 	router.InitApi(r)
 	router.InitControl(r)
 	router.InitAuthen(r)
+	router.InitUserProfile(r)
 
 	r.Run(":8000") // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 }

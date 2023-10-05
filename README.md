@@ -13,3 +13,7 @@ gin框架模板
    go get -u github.com/gin-gonic/gin
 
    最后使用 go mod tidy 整理包
+6. 注意：添加新路由一定要在main.go中注册路由
+
+
+

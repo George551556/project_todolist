@@ -113,7 +113,7 @@ func db_delete(id int, password string) bool {
 	}
 }
 
-// 根据id查密码，用于登录验证，返回验证状态以及用户昵称
+// 根据id查密码，用于登录验证，返回验证状态以及用户ID及昵称
 func Db_Login_middle(username int, password string) (bool, int, string) {
 	db, err = gorm.Open(mysql.Open(dsn))
 	if err != nil {
@@ -130,7 +130,7 @@ func Db_Login_middle(username int, password string) (bool, int, string) {
 	}
 }
 
-// 事项item相关数据库操作函数
+// 事项item相关数据库操作函数====================================================================
 // 增加一条事项记录
 func Db_createOneItem(userid int, content string) bool {
 	db, err = gorm.Open(mysql.Open(dsn))
@@ -143,19 +143,19 @@ func Db_createOneItem(userid int, content string) bool {
 	return err == nil
 }
 
-// 根据userid查找所有对应事项记录
-func Db_findItems(userid int) {
+// 根据userid查找某个用户所有对应事项记录
+func Db_findItems(userid int) []Items {
 	db, err = gorm.Open(mysql.Open(dsn))
 	if err != nil {
 		panic(err)
 	}
 	var tempItems []Items
-	db.Where(&Items{UserId: userid}).Find(&tempItems)
+	db.Where(&Items{UserId: userid}).Find(&tempItems) // 也可以使用 db.Where("UserId = ?", userId).Find(&items)
 	fmt.Println("查找执行完毕")
-	for i := range tempItems {
-		fmt.Println(i, "行：", tempItems[i])
-	}
-	//注意：需要返回查询到的信息
+	// for i := range tempItems {
+	// 	fmt.Println(i, "行：", tempItems[i])
+	// }
+	return tempItems
 }
 
 // 修改某事项的工作内容
