@@ -129,3 +129,54 @@ func Db_Login_middle(username int, password string) (bool, int, string) {
 		return false, -1, ""
 	}
 }
+
+// 事项item相关数据库操作函数
+// 增加一条事项记录
+func Db_createOneItem(userid int, content string) bool {
+	db, err = gorm.Open(mysql.Open(dsn))
+	if err != nil {
+		panic(err)
+	}
+	tempItem := Items{UserId: userid, Content: content, CreateTime: time.Now(), State: false}
+	err := db.Create(&tempItem).Error
+	fmt.Println("添加事项执行完.....")
+	return err == nil
+}
+
+// 根据userid查找所有对应事项记录
+func Db_findItems(userid int) {
+	db, err = gorm.Open(mysql.Open(dsn))
+	if err != nil {
+		panic(err)
+	}
+	var tempItems []Items
+	db.Where(&Items{UserId: userid}).Find(&tempItems)
+	fmt.Println("查找执行完毕")
+	for i := range tempItems {
+		fmt.Println(i, "行：", tempItems[i])
+	}
+	//注意：需要返回查询到的信息
+}
+
+// 修改某事项的工作内容
+func Db_changeItemContent(id int, newContent string) bool {
+	db, err = gorm.Open(mysql.Open(dsn))
+	if err != nil {
+		panic(err)
+	}
+	tempItem := Items{Id: id}
+	this_err := db.Model(&tempItem).Update("content", newContent).Error
+	return this_err == nil
+}
+
+// 根据事项id删除某事项
+func Db_deleteItem(id int) bool {
+	db, err = gorm.Open(mysql.Open(dsn))
+	if err != nil {
+		panic(err)
+	}
+	var tempItem Items
+	db.Where(&Items{Id: id}).Find(&tempItem)
+	this_err := db.Delete(&tempItem).Error
+	return this_err == nil
+}

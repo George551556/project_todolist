@@ -9,7 +9,12 @@ import (
 )
 
 func main() {
-
+	// utils.Db_findItems(4)
+	if utils.Db_deleteItem(6) {
+		fmt.Println("aaa")
+	} else {
+		fmt.Println("bbb")
+	}
 	// utils.Db_createOneUser(2020, "123asd", "小猪佩奇")
 
 	r := gin.Default()

@@ -9,6 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// 登录验证函数
 func Login(c *gin.Context) {
 	temp_username := c.PostForm("username")
 	password := c.PostForm("password") //获取输入的账号密码
@@ -31,6 +32,7 @@ func Login(c *gin.Context) {
 	}
 }
 
+// 注册函数
 func Signup(c *gin.Context) {
 
 }
