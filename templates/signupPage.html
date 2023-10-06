@@ -4,14 +4,71 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <style>
+    .notification {
+      position: fixed;
+      top: 8%;
+      left: 50%;
+      transform: translate(-50%, -60%);
+      background-color: #70b09c;
+      padding: 10px 20px;
+      border-radius: 30px;
+      box-shadow: 0 10px 8px rgba(26, 24, 35, 0.4);
+      visibility: hidden;
+    }
+    </style>
 </head>
 <body>
-    注册页面
-    <form action="/authen/signup" method="post">
-        <input name="nickname" placeholder="昵称">
-        <input name="id" placeholder="账号">
-        <input name="password" type="password" placeholder="密码">
-        <input type="submit"> 
-    </form>
+    <h2>注册页面</h2>
+    <!-- <form action="/authen/signup" method="post"> -->
+    <input name="username" placeholder="账号" type="number">
+    <input name="password" type="password" placeholder="密码">
+    <input name="nickname" placeholder="昵称">
+    <input type="submit" id="submit"> 
+
+    <div id="notification" class="notification">4621356156461365461</div>
+
+    <script>
+        
+        
+        submit.addEventListener('click', ()=>{
+            const username = document.getElementById('username');
+            const password = document.getElementById('password');
+            const nickname = document.getElementById('nickname');
+            const submit = document.getElementById('submit');
+
+            const formData = new FormData();
+            formData.append('username', username.value);
+            formData.append('password', password.value);
+            formData.append('nickname', nickname.value);
+
+            fetch("/authen/signup", {
+                method:"POST",
+                body: formData,
+                redirect:'follow',
+            }).then(response =>{
+                const status = response.status;
+                if(status === 200){
+                    console.log('注册成功');
+                    showNotification("注册成功", 2000);
+                    //开始跳转页面到登录页面
+                }else if(status === 400){
+                    console.log('注册失败');
+                    showNotification("注册失败，原因：该账号可能有人使用", 3000);
+                }
+            })
+        })
+
+
+    function showNotification(message, duration) {
+      const notification = document.getElementById('notification');
+      notification.textContent = message;
+      notification.style.visibility = 'visible';
+
+      setTimeout(() => {
+        notification.style.visibility = 'hidden';
+      }, duration);
+    }
+    </script>
 </body>
 </html>

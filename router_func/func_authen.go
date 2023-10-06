@@ -32,7 +32,18 @@ func Login(c *gin.Context) {
 	}
 }
 
-// 注册函数
+// 新成员注册函数
 func Signup(c *gin.Context) {
-
+	temp_username := c.PostForm("username")
+	password := c.PostForm("password")
+	nickname := c.PostForm("nickname")
+	username, err := strconv.Atoi(temp_username)
+	if err != nil {
+		fmt.Println("输入违法")
+	}
+	if utils.Db_createOneUser(uint(username), password, nickname) {
+		c.Status(200)
+	} else {
+		c.Status(400)
+	}
 }

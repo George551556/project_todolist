@@ -58,7 +58,7 @@ func Db_makeTable() {
 }
 
 // 增加一个成员
-func Db_createOneUser(username uint, password string, nickname string) {
+func Db_createOneUser(username uint, password string, nickname string) bool {
 	db, err = gorm.Open(mysql.Open(dsn))
 	if err != nil {
 		panic(err)
@@ -69,7 +69,22 @@ func Db_createOneUser(username uint, password string, nickname string) {
 		Nickname:   nickname,
 		SignUpTime: time.Now(),
 	}
-	db.Create(&tempUser)
+	//判断该username是否已经存在
+	var check_user User
+	err1 := db.Where(&User{Username: username}).Find(&check_user).Error
+	if err1 != nil {
+		if err1 == gorm.ErrRecordNotFound {
+			//没有查询到结果,可以添加该用户
+			db.Create(&tempUser)
+			return true
+		} else {
+			fmt.Println("验证账户存在时，查询出错")
+			return false
+		}
+	} else {
+		//查询到结果,不可添加
+		return false
+	}
 }
 
 // 查询成员
