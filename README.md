@@ -11,9 +11,11 @@ gin框架模板
    go mod init [模块名] 
    go get -u github.com/mongodb/mongo-go-driver   安装mongodb驱动
    go get -u github.com/gin-gonic/gin
+   
 
    最后使用 go mod tidy 整理包
 6. 注意：添加新路由一定要在main.go中注册路由
+   第一次部署项目要访问路由 /lkz/init 进行初始化数据表
 
 
 

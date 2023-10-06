@@ -1,7 +1,14 @@
 package router_func
 
-import "github.com/gin-gonic/gin"
+import (
+	"fmt"
+	"todolist/utils"
 
-func Lkz(c *gin.Context) {
-	c.String(200, "hello, 分组路由，调用的路由为\"Lkz\"")
+	"github.com/gin-gonic/gin"
+)
+
+func InitDatabase(c *gin.Context) {
+	utils.Db_makeTable() //映射数据表，只调用一次
+	fmt.Println("数据表初始化成功")
+	c.String(200, "hello, 数据表初始化成功")
 }
