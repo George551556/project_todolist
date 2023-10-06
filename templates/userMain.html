@@ -19,75 +19,82 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      background-color: #fff;
+      background-color: rgb(88, 90, 90);
       padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      border-radius: 30px;
+      box-shadow: 0 10px 8px rgba(26, 24, 35, 0.4);
+      width: 40%;
+      /* height: fit-content; */
     }
+    .notification {
+      position: fixed;
+      top: 8%;
+      left: 50%;
+      transform: translate(-50%, -60%);
+      background-color: #70b09c;
+      padding: 10px 20px;
+      border-radius: 30px;
+      box-shadow: 0 10px 8px rgba(26, 24, 35, 0.4);
+      visibility: hidden;
+    }
+
   </style>
 </head>
 <body>
+
   <div id="user-info">
-    <!-- 用户名称 -->
+    <!-- 欢迎XXX -->
   </div>
-  <button id="add-item-btn">添加事项</button>
+  <button id="add-item-btn" onclick="func_visibleItemModal(1)">添加事项</button>
+  <button onclick="">修改昵称</button>
+
+  <!-- 修改或添加事项弹窗:点击按钮则显示此div -->
+  <div id="edit-item-modal" class="modal" style="visibility: hidden;">
+    <input type="text" id="edit-item-content" style="margin-left: 15%; width: 50%;">
+    <button id="edit-item-submit" style="width: 10%;" onclick="func_submitItem()">提交</button>
+    <button onclick="func_visibleItemModal(0)" style="width: 10%;">取消</button>
+  </div>
+
   <div id="todo-list">
     <!-- 待办事项列表 -->
   </div>
 
-  <!-- 添加事项弹窗 -->
-  <div id="add-item-modal" class="modal">
-    <input type="text" id="item-content" placeholder="输入任务内容">
-    <button id="add-item-submit">提交</button>
-  </div>
+  <div id="notification" class="notification">4621356156461365461</div>
 
-  <!-- 修改事项弹窗 -->
-  <div id="edit-item-modal" class="modal">
-    <input type="text" id="edit-item-content">
-    <button id="edit-item-submit">提交</button>
-  </div>
-
-  <!-- JavaScript代码 -->
+  <!-- JavaScript代码 --------------------------------------------------------------------------->
   <script>
     // 获取DOM元素
     const userInfoElement = document.getElementById('user-info');
-    const addItemBtn = document.getElementById('add-item-btn');
+    const addItemBtn = document.getElementById('add-item-btn');//添加事项按钮
     const todoListElement = document.getElementById('todo-list');
     const addItemModal = document.getElementById('add-item-modal');
     const addItemSubmitBtn = document.getElementById('add-item-submit');
-    const editItemModal = document.getElementById('edit-item-modal');
+    const editItemModal = document.getElementById('edit-item-modal');//浮动编辑窗口
     const editItemContentInput = document.getElementById('edit-item-content');
-    const editItemSubmitBtn = document.getElementById('edit-item-submit');
-
-    // 从后端获取的数据---------------------------------------
-    // const userData = {
-    //   name: 'Jack',
-    //   todoList: [
-    //     { id: 1, content: '任务内容1', created: '2023-10-04', completed: false },
-    //     { id: 2, content: '任务内容内容内容内容2', created: '2023-10-04', completed: true },
-    //     // 其他待办事项...
-    //   ]
-    // };
-    const formData = new FormData();
-    formData.append('userid', localStorage.getItem('userid'));
-    fetch("/userpro/getitems", {
-        method:'POST',
-        body:formData,
-    }).then(response =>{
-        //此处获取返回的事项数据，可以进行渲染renderTodoList()
-        response.json().then(data =>{
-            // console.log(data.items);
-            renderTodoList(data.items)
-
-        })
-    })
+    const editItemSubmitBtn = document.getElementById('edit-item-submit');//提交按钮
 
     // 显示用户信息和待办事项列表
     const userid = localStorage.getItem('userid');
     const nickname = localStorage.getItem('nickname');
-    const welcomeInformation = "欢迎"+userid+"号用户,"+nickname;
+    const welcomeInformation = "欢迎用户，"+nickname;
     userInfoElement.textContent = welcomeInformation;
-    renderTodoList();
+    func_getItems();
+
+    //函数：发送请求获取事项数据
+    function func_getItems(){
+      const formData = new FormData();
+      formData.append('userid', localStorage.getItem('userid'));
+      fetch("/userpro/getitems", {
+          method:'POST',
+          body:formData,
+      }).then(response =>{
+          //此处获取返回的事项数据，可以进行渲染renderTodoList()
+          response.json().then(data =>{
+              // console.log(data.items);
+              renderTodoList(data.items);
+          })
+      })
+    }
 
     // 渲染待办事项列表的函数
     function renderTodoList(items) {
@@ -106,7 +113,7 @@
         // 创建任务内容元素
         const contentElement = document.createElement('div');
         contentElement.textContent = item.Content;
-        contentElement.style.width = '60%'
+        contentElement.style.width = '50%'
         // 创建创建时间元素
         const createdElement = document.createElement('div');
         //修改优化时间类型  2023-10-05T16:09:02.427+08:00  =>  2023-10-05 16:09
@@ -145,20 +152,36 @@
       });
     }
 
-    // 打开添加事项弹窗
-    addItemBtn.addEventListener('click', () => {
-      addItemModal.style.display = 'block';
-    });
+    //按钮函数编写===================================================================================
+    // 打开/关闭,添加/修改事项弹窗
+    function func_visibleItemModal(tag){
+      if(tag) editItemModal.style.visibility = "visible";
+      else    editItemModal.style.visibility = "hidden";
+    }
 
-    // 提交添加事项
-    addItemSubmitBtn.addEventListener('click', () => {
-      const content = document.getElementById('item-content').value;
-      // 发送到后端保存数据的逻辑...
+    // 函数：提交添加事项
+    function func_submitItem(){
+      console.log(editItemContentInput.value);
+      const formData = new FormData();
+      formData.append('userid', localStorage.getItem('userid'));
+      formData.append('content', editItemContentInput.value);
+      fetch("/userpro/additem", {
+        method:'POST',
+        body:formData,
+      }).then(response =>{
+        //添加事项
+        if(response.status===200){
+          console.log('添加成功');
+          func_visibleItemModal(0);//关闭浮窗
+          showNotification("       添加成功        ", 2000);
+          func_getItems();
+        }else{
+          alert("添加失败");
+        }
+      })
+    }
 
-      // 关闭弹窗并刷新列表
-      addItemModal.style.display = 'none';
-      renderTodoList();
-    });
+
 
     // 打开修改事项弹窗
     function openEditModal(item) {
@@ -167,15 +190,7 @@
       // 保存当前修改的事项数据...
     }
 
-    // 提交修改事项
-    editItemSubmitBtn.addEventListener('click', () => {
-      const newContent = editItemContentInput.value;
-      // 发送到后端更新数据的逻辑...
 
-      // 关闭弹窗并刷新列表
-      editItemModal.style.display = 'none';
-      renderTodoList();
-    });
 
     // 删除事项
     function deleteItem(item) {
@@ -191,6 +206,17 @@
 
       // 刷新列表
       renderTodoList();
+    }
+
+    // 函数:产生一个临时的提示信息
+    function showNotification(message, duration) {
+      const notification = document.getElementById('notification');
+      notification.textContent = message;
+      notification.style.visibility = 'visible';
+
+      setTimeout(() => {
+        notification.style.visibility = 'hidden';
+      }, duration);
     }
   </script>
 </body>

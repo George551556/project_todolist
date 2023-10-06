@@ -31,3 +31,16 @@ func GetUserItems(c *gin.Context) {
 		"items": items,
 	})
 }
+
+// 路由函数：根据传入的userid以及content添加新的事项
+func AddItem(c *gin.Context) {
+	temp_userid := c.PostForm("userid")
+	userid, err := strconv.Atoi(temp_userid)
+	if err != nil {
+		fmt.Println(err)
+	}
+	content := c.PostForm("content")
+	utils.Db_createOneItem(userid, content)
+	fmt.Println("添加事项:", userid, "内容：", content)
+	c.Status(200)
+}
