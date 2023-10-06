@@ -70,21 +70,21 @@ func Db_createOneUser(username uint, password string, nickname string) bool {
 		SignUpTime: time.Now(),
 	}
 	//判断该username是否已经存在
-	var check_user User
-	err1 := db.Where(&User{Username: username}).Find(&check_user).Error
-	if err1 != nil {
-		if err1 == gorm.ErrRecordNotFound {
-			//没有查询到结果,可以添加该用户
-			db.Create(&tempUser)
-			return true
-		} else {
-			fmt.Println("验证账户存在时，查询出错")
-			return false
-		}
+	var check_user []User
+	db.Where(&User{Username: username}).Find(&check_user)
+	/*
+		where的查询结果为：
+			查不到：err1为空
+			查到
+	*/
+	if len(check_user) < 1 {
+		fmt.Println("查询结果数组为0")
+		db.Create(&tempUser)
+		return true
 	} else {
-		//查询到结果,不可添加
 		return false
 	}
+
 }
 
 // 查询成员

@@ -133,11 +133,11 @@
         // 创建删除按钮
         const deleteButton = document.createElement('button');
         deleteButton.textContent = '删除';
-        deleteButton.addEventListener('click', () => deleteItem(item));
+        // deleteButton.addEventListener('click', () => deleteItem(item));
         // 创建完成按钮
         const completeButton = document.createElement('button');
         completeButton.textContent = '完成';
-        completeButton.addEventListener('click', () => completeItem(item));
+        // completeButton.addEventListener('click', () => completeItem(item));
         // 将修改、删除和完成按钮添加到操作按钮容器元素中
         actionsElement.appendChild(editButton);
         actionsElement.appendChild(deleteButton);
@@ -173,7 +173,7 @@
         if(response.status===200){
           console.log('添加成功');
           func_visibleItemModal(0);//关闭浮窗
-          showNotification("       添加成功        ", 2000);
+          showNotification("添加成功", 2000);
           func_getItems();
         }else{
           alert("添加失败");
