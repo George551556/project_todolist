@@ -3,18 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>ToDo首页</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        h1 {
+            margin-top: 50px;
+        }
+        
+        form {
+            margin-top: 20px;
+        }
+        
+        input[type="submit"] {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #70b09c;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        input[type="submit"]:hover {
+            background-color: #5a8c7f;
+        }
+    </style>
 </head>
 <body>
-    list首页
+    <h1>ToDo首页</h1>
     <form action="/control/tologinpage" method="get">
         <input type="submit" value="登陆">
     </form>
     <form action="/control/tosignuppage" method="get">
         <input type="submit" value="注册">
     </form>
-
-    
-    
 </body>
 </html>

@@ -2,6 +2,7 @@
 <html>
 <head>
   <title>TodoList</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     /* CSS样式 */
     .todo-item {
@@ -37,7 +38,26 @@
       box-shadow: 0 10px 8px rgba(26, 24, 35, 0.4);
       visibility: hidden;
     }
+    .add-item-btn {
+      padding: 5px 10px;
+      font-size: 12px;
+      background-color: #70b09c;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
 
+    .add-item-btn:hover {
+      background-color: #5a917a;
+    }
+    hr {
+      border: none;
+      height: 1px;
+      background-color: #ccc;
+      margin: 20px 0;
+    }
   </style>
 </head>
 <body>
@@ -45,14 +65,15 @@
   <div id="user-info">
     <!-- 欢迎XXX -->
   </div>
-  <button id="add-item-btn" onclick="func_visibleItemModal(1)">添加事项</button>
-  <button onclick="func_visibleItemModal(3)">修改昵称</button>
+  <button id="add-item-btn" onclick="func_visibleItemModal(1)" class="add-item-btn">添加事项</button>
+  <button onclick="func_visibleItemModal(3)" class="add-item-btn">修改昵称</button>
+  <hr>
 
   <!-- 修改或添加事项弹窗:点击按钮则显示此div -->
   <div id="edit-item-modal" class="modal" style="visibility: hidden;">
-    <input type="text" id="edit-item-content" style="margin-left: 15%; width: 50%;">
-    <button id="edit-item-submit" style="width: 10%;">提交</button>
-    <button onclick="func_visibleItemModal(0)" style="width: 10%;">取消</button>
+    <input type="text" id="edit-item-content" style=" width: 100%;">
+    <button id="edit-item-submit" style="margin-left: 30%;width: 20%;">提交</button>
+    <button onclick="func_visibleItemModal(0)" style="width: 20%;">取消</button>
   </div>
 
   <div id="todo-list">
@@ -116,8 +137,9 @@
         // 创建任务内容元素
         const contentElement = document.createElement('text');
         contentElement.textContent = item.Content;
-        contentElement.style.width = '50%'
+        contentElement.style.width = '50%';
         // 创建创建时间元素
+        const br = document.createElement('br');
         const createdElement = document.createElement('div');
         //修改优化时间类型  2023-10-05T16:09:02.427+08:00  =>  2023-10-05 16:09
         createdElement.textContent = "创建时间：" + item.CreateTime.slice(0, 16);
@@ -142,6 +164,7 @@
         // 将隐藏编号、任务内容、创建时间、完成状态和操作按钮容器添加到待办事项元素中
         todoItemElement.appendChild(itemIdElement);
         todoItemElement.appendChild(contentElement);
+        todoItemElement.appendChild(br);
         todoItemElement.appendChild(createdElement);
         todoItemElement.appendChild(completedElement);
         // todoItemElement.appendChild(actionsElement);
