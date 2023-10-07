@@ -44,3 +44,61 @@ func AddItem(c *gin.Context) {
 	fmt.Println("添加事项:", userid, "内容：", content)
 	c.Status(200)
 }
+
+// 路由函数：根据传入的userid以及content修改用户的昵称
+func ChangeNickname(c *gin.Context) {
+	temp_userid := c.PostForm("userid")
+	userid, err := strconv.Atoi(temp_userid)
+	if err != nil {
+		fmt.Println(err)
+	}
+	new_nickname := c.PostForm("content")
+	if utils.Db_change(userid, new_nickname) {
+		c.Status(200)
+	} else {
+		c.Status(400)
+	}
+}
+
+// 路由函数：根据传入的itemId以及content修改事项内容
+func ChangeItemContent(c *gin.Context) {
+	temp_itemId := c.PostForm("itemId")
+	itemId, err := strconv.Atoi(temp_itemId)
+	if err != nil {
+		fmt.Println(err)
+	}
+	new_content := c.PostForm("new_content")
+	if utils.Db_changeItemContent(itemId, new_content) {
+		c.Status(200)
+	} else {
+		c.Status(400)
+	}
+}
+
+// 路由函数：根据传入的itemId删除item
+func DeleteItem(c *gin.Context) {
+	temp_itemId := c.PostForm("itemId")
+	itemId, err := strconv.Atoi(temp_itemId)
+	if err != nil {
+		fmt.Println(err)
+	}
+	if utils.Db_deleteItem(itemId) {
+		c.Status(200)
+	} else {
+		c.Status(400)
+	}
+}
+
+// 路由函数：根据传入的itemId完成item
+func ChangeState(c *gin.Context) {
+	temp_itemId := c.PostForm("itemId")
+	itemId, err := strconv.Atoi(temp_itemId)
+	if err != nil {
+		fmt.Println(err)
+	}
+	if utils.Db_changeItemState(itemId) {
+		c.Status(200)
+	} else {
+		c.Status(400)
+	}
+}

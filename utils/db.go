@@ -100,14 +100,20 @@ func Db_findUsers() {
 	}
 }
 
-// 修改成员信息
-func Db_change() {
+// 修改成员昵称
+func Db_change(id int, new_nickname string) bool {
 	db, err = gorm.Open(mysql.Open(dsn))
 	if err != nil {
 		panic(err)
 	}
-	tempUser := User{Id: 3} //示例，按照id修改对应信息
-	db.Model(&tempUser).Update("Nickname", "完美世界")
+	tempUser := User{Id: id} //示例，按照id修改对应信息
+	err1 := db.Model(&tempUser).Update("Nickname", new_nickname).Error
+	fmt.Println("执行了修改昵称，修改为", new_nickname)
+	if err1 != nil {
+		return false
+	} else {
+		return true
+	}
 }
 
 // 删除(注销)用户
@@ -181,6 +187,7 @@ func Db_changeItemContent(id int, newContent string) bool {
 	}
 	tempItem := Items{Id: id}
 	this_err := db.Model(&tempItem).Update("content", newContent).Error
+	fmt.Println("执行修改事项内容函数")
 	return this_err == nil
 }
 
@@ -193,5 +200,27 @@ func Db_deleteItem(id int) bool {
 	var tempItem Items
 	db.Where(&Items{Id: id}).Find(&tempItem)
 	this_err := db.Delete(&tempItem).Error
+	return this_err == nil
+}
+
+// 根据事项id完成某事项
+func Db_changeItemState(id int) bool {
+	db, err = gorm.Open(mysql.Open(dsn))
+	if err != nil {
+		panic(err)
+	}
+	var resItem Items
+	tempItem := Items{Id: id}
+	//获取原本完成状态
+	db.Where(&tempItem).Find(&resItem)
+	tag := resItem.State
+	tag = !tag
+	// if tag{
+	// 	resItem.State = false
+	// }else{
+	// 	resItem.State = true
+	// }
+	this_err := db.Model(&tempItem).Update("State", tag).Error
+	fmt.Println("执行修改事项状态函数")
 	return this_err == nil
 }
