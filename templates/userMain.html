@@ -38,6 +38,29 @@
       box-shadow: 0 10px 8px rgba(26, 24, 35, 0.4);
       visibility: hidden;
     }
+    @keyframes slideIn {
+      0% {
+        top: -100px;
+      }
+      50% {
+        top: 50px;
+      }
+      100% {
+        top: 8%;
+      }
+    }
+
+    @keyframes slideOut {
+      0% {
+        top: 8%;
+      }
+      50% {
+        top: 50px;
+      }
+      100% {
+        top: -100px;
+      }
+    }
     .add-item-btn {
       padding: 5px 10px;
       font-size: 12px;
@@ -80,6 +103,7 @@
     <!-- 待办事项列表 -->
   </div>
 
+  <!-- 通知弹窗 -->
   <div id="notification" class="notification"></div>
 
   <!-- JavaScript代码 --------------------------------------------------------------------------->
@@ -189,6 +213,7 @@
           //添加事项
           editItemSubmitBtn.onclick = func_submitItem;
           editItemModal.style.visibility = "visible";
+          editItemContentInput.focus();
           break;
         case 2:
           //修改事项内容
@@ -199,6 +224,7 @@
           //修改昵称
           editItemSubmitBtn.onclick = func_changeNickname;
           editItemModal.style.visibility = "visible";
+          editItemContentInput.focus();
           break;
         case 4:
           //
@@ -223,7 +249,7 @@
           console.log('添加成功');
           editItemContentInput.value = "";//清除输入框数据
           func_visibleItemModal(0);//关闭浮窗
-          showNotification("添加成功", 2000);
+          showNotification("添加成功", 3000);
           func_getItems();
         }else{
           alert("添加失败");
@@ -245,12 +271,12 @@
           console.log('昵称修改成功');
           editItemContentInput.value = "";
           func_visibleItemModal(0);
-          showNotification("昵称修改成功", 2000);
+          showNotification("昵称修改成功", 3000);
           userInfoElement.textContent = "欢迎用户, "+temp_content;
           localStorage.setItem('nickname', temp_content)
         }
         else{
-          showNotification("修改失败",2000);
+          showNotification("修改失败",3000);
         }
       })
     }
@@ -267,7 +293,7 @@
       const content = contentElement.textContent;
 
       //调出并设置浮动框
-      editItemContentInput.value = content;
+      editItemContentInput.value = content;//设置悬浮窗内容
       editItemSubmitBtn.onclick = function(){
         const formData = new FormData();
         formData.append("itemId", itemId);
@@ -277,17 +303,18 @@
           body:formData,
         }).then(response=>{
           if(response.status===200){
-            showNotification("事项内容修改成功", 2000);
+            showNotification("事项内容修改成功", 3000);
             func_getItems();
             func_visibleItemModal(0);
           }
           else{
-            showNotification("事项内容修改失败", 2000);
+            showNotification("事项内容修改失败", 3000);
             console.log('content change fail.');
           }
         })
       }
       editItemModal.style.visibility = "visible";
+      editItemContentInput.focus();
       //输出测试
       // console.log("按修改按钮")
       // console.log(itemId);
@@ -312,17 +339,18 @@
           body:formData,
         }).then(response=>{
           if(response.status===200){
-            showNotification("事项删除成功", 2000);
+            showNotification("事项删除成功", 3000);
             func_getItems();
             func_visibleItemModal(0);
           }
           else{
-            showNotification("事项内容删除失败", 2000);
+            showNotification("事项内容删除失败", 3000);
             console.log('item delete fail.');
           }
         })
       }
       editItemModal.style.visibility = "visible";
+      editItemSubmitBtn.focus();
       //输出测试
       // console.log("按修改按钮")
       // console.log(itemId);
@@ -347,17 +375,18 @@
           body:formData,
         }).then(response=>{
           if(response.status===200){
-            showNotification("事项已完成", 2000);
+            showNotification("事项已完成", 3000);
             func_getItems();
             func_visibleItemModal(0);
           }
           else{
-            showNotification("提交失败", 2000);
+            showNotification("提交失败", 3000);
             console.log('item over fail.');
           }
         })
       }
       editItemModal.style.visibility = "visible";
+      editItemSubmitBtn.focus();
       //输出测试
       // console.log("按修改按钮")
       // console.log(itemId);
@@ -370,8 +399,13 @@
       const notification = document.getElementById('notification');
       notification.textContent = message;
       notification.style.visibility = 'visible';
-      setTimeout(() => {
-        notification.style.visibility = 'hidden';
+      notification.style.animation = 'slideIn 0.5s ease-in-out forwards';
+      setTimeout(()=>{
+        notification.style.animation = 'slideOut 0.5s ease-in-out forwards';
+        setTimeout(() => {
+            notification.style.visibility = 'hidden';
+            notification.style.animation = '';
+        }, 1000);
       }, duration);
     }
   </script>
