@@ -33,6 +33,13 @@ type Items struct {
 	State      bool
 }
 
+type Result struct {
+	Username   uint
+	Nickname   string
+	Content    string
+	CreateTime time.Time
+}
+
 // 指定表名
 func (User) TableName() string {
 	return "users"
@@ -223,4 +230,22 @@ func Db_changeItemState(id int) bool {
 	this_err := db.Model(&tempItem).Update("State", tag).Error
 	fmt.Println("执行修改事项状态函数")
 	return this_err == nil
+}
+
+//==================================================================================================
+
+// 函数：用于连接查询两个数据表，显示用户及其对应的事项记录
+func Db_findUserItems() []Result {
+	db, err = gorm.Open(mysql.Open(dsn))
+	if err != nil {
+		panic(err)
+	}
+	var results []Result
+	fmt.Println("调用lkz查询...")
+	db.Table("users").
+		Select("users.username, users.nickname, items.content, items.create_time").
+		Joins("JOIN items ON users.id = items.user_id").
+		Find(&results)
+
+	return results
 }
