@@ -90,6 +90,7 @@
   </div>
   <button id="add-item-btn" onclick="func_visibleItemModal(1)" class="add-item-btn">添加事项</button>
   <button onclick="func_visibleItemModal(3)" class="add-item-btn">修改昵称</button>
+  <button id="tologinpage" class="add-item-btn" onclick="func_tologinpage">重新登录</button>
   <hr>
 
   <!-- 修改或添加事项弹窗:点击按钮则显示此div -->
@@ -111,6 +112,7 @@
     // 获取DOM元素
     const userInfoElement = document.getElementById('user-info');//欢迎信息
     const addItemBtn = document.getElementById('add-item-btn');//添加事项按钮
+    const tologinpage = document.getElementById('tologinpage');
     const todoListElement = document.getElementById('todo-list');
     const addItemModal = document.getElementById('add-item-modal');
     const addItemSubmitBtn = document.getElementById('add-item-submit');
@@ -124,6 +126,10 @@
     const welcomeInformation = "欢迎用户，"+nickname;
     userInfoElement.textContent = welcomeInformation;
     func_getItems();
+    tologinpage.addEventListener("click", ()=>{
+      console.log('tologinpage');
+      window.location.href = "/control/tologinpage";
+    })
 
     //函数：发送请求获取事项数据并刷新
     function func_getItems(){
@@ -408,6 +414,7 @@
         }, 1000);
       }, duration);
     }
+
   </script>
 </body>
 </html>

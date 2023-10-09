@@ -61,6 +61,7 @@
     <input id="password" type="password" placeholder="密码">
     <input id="nickname" placeholder="昵称"><br>
     <input type="submit" id="submit"> 
+    <button id = "tologinpage">去登录</button>
 
     <div id="notification" class="notification"></div>
 
@@ -69,6 +70,7 @@
         const password = document.getElementById('password');
         const nickname = document.getElementById('nickname');
         const submit = document.getElementById('submit');
+        const tologinpage = document.getElementById('tologinpage');
 
         submit.addEventListener('click', ()=>{
             const formData = new FormData();
@@ -94,6 +96,10 @@
             })
         })
 
+        tologinpage.addEventListener("click", ()=>{
+            window.location.href = "/control/tologinpage";
+        })
+    
 
     function showNotification(message, duration) {
       const notification = document.getElementById('notification');

@@ -38,16 +38,18 @@
     </style>
 </head>
 <body>
-    登录页面<br>
+    <h2>登录页面</h2><br>
     <!-- <form action="/authen/login" method="post"> -->
     <input id="username"placeholder="账号" type="number">
     <input id="password" type="password"placeholder="密码"><br>
     <button id="submit">登录</button>
+    <button id="tosignuppage">注册账号</button>
 </body>
 <script>
     var submit = document.getElementById("submit");
     var this_username = document.getElementById("username");
     var this_password = document.getElementById("password");
+    var tosignuppage = document.getElementById('tosignuppage');
 
     submit.addEventListener("click", ()=>{
         var username_1 = this_username.value;
@@ -77,5 +79,10 @@
             }
         })
     })
+
+    tosignuppage.addEventListener("click", ()=>{
+        window.location.href = "/control/tosignuppage";
+    })
+
 </script>
 </html>
