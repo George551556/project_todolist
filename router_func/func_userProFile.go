@@ -96,20 +96,27 @@ func ChangeState(c *gin.Context) {
 
 // 路由函数：根据传入的文件以及用户id存储文件并存储文件信息
 func UploadFile(c *gin.Context) {
-	userid := c.PostForm("userid")
+	temp_userid := c.PostForm("userid")
+	userid, err := strconv.Atoi(temp_userid)
+	if err != nil {
+		fmt.Println(err)
+	}
 	file, file_err := c.FormFile("file")
 
 	if file_err != nil {
 		fmt.Println("上传文件为空")
-		c.JSON(400, gin.H{})
+		c.JSON(400, gin.H{"status": 400, "msg": "请选择文件"})
 	}
 
-	file.Filename = "files/" + file.Filename //设置保存文件的地址及文件名
 	fmt.Println(userid, file.Filename)
 	//文件存储在本地
-	c.SaveUploadedFile(file, file.Filename)
+	rootDir := "files/"
+	file_site := rootDir + temp_userid + "/"
+	fileStorage := file_site + file.Filename //文件保存最终路径
+	c.SaveUploadedFile(file, fileStorage)
 
 	//文件及用户信息保存在数据库
-
-	c.JSON(200, gin.H{"msg": "上传成功"})
+	result := utils.Db_storeFiles(userid, file.Filename, file_site)
+	//返回信息
+	c.JSON(200, gin.H{"status": 200, "msg": result})
 }

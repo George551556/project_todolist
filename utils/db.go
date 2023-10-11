@@ -33,6 +33,16 @@ type Items struct {
 	State      bool
 }
 
+// 指定网盘文件表
+type PanFile struct {
+	Id         int
+	UserId     int `gorm:"foreignKey:UserId;references:User(Id)"`
+	FileName   string
+	FileSite   string
+	CreateTime time.Time
+}
+
+// 用于后门查询的结构
 type Result struct {
 	Username   uint
 	Nickname   string
@@ -46,6 +56,9 @@ func (User) TableName() string {
 }
 func (Items) TableName() string {
 	return "items"
+}
+func (PanFile) TableName() string {
+	return "panfiles"
 }
 
 var db *gorm.DB
@@ -61,6 +74,7 @@ func Db_makeTable() {
 
 	db.AutoMigrate(&User{})
 	db.AutoMigrate(&Items{})
+	db.AutoMigrate(&PanFile{})
 	fmt.Println("tables make succs")
 }
 
@@ -251,6 +265,26 @@ func Db_findUserItems() []Result {
 	return results
 }
 
-//===============================================================================================================
+// ===============================================================================================================
 // 网盘相关函数====================================================================
-func Db_
+// 根据user_id和文件名将文件信息存放在PanFile表中
+func Db_storeFiles(user_id int, file_name string, file_site string) string {
+	db, err = gorm.Open(mysql.Open(dsn))
+	if err != nil {
+		panic(err)
+	}
+	//先查询数据库中有无同名文件，若有则直接修改其创建时间
+	var check []PanFile
+	db.Where(&PanFile{FileName: file_name}).Find(&check)
+	if len(check) < 1 {
+		//无同名文件
+		thisFile := PanFile{UserId: user_id, FileName: file_name, FileSite: file_site, CreateTime: time.Now()}
+		db.Create(&thisFile)
+		fmt.Println("文件保存成功")
+		return "文件保存成功"
+	} else {
+		db.Model(&PanFile{Id: check[0].Id}).Update("CreateTime", time.Now())
+		fmt.Println("成功覆盖已有文件")
+		return "成功覆盖已有文件"
+	}
+}
