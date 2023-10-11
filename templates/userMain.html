@@ -90,7 +90,8 @@
   </div>
   <button id="add-item-btn" onclick="func_visibleItemModal(1)" class="add-item-btn">添加事项</button>
   <button onclick="func_visibleItemModal(3)" class="add-item-btn">修改昵称</button>
-  <button id="tologinpage" class="add-item-btn" onclick="func_tologinpage">重新登录</button>
+  <button id="tologinpage" class="add-item-btn">重新登录</button>
+  <button id="tofilestorage" class="add-item-btn">我的网盘</button>
   <hr>
 
   <!-- 修改或添加事项弹窗:点击按钮则显示此div -->
@@ -113,6 +114,7 @@
     const userInfoElement = document.getElementById('user-info');//欢迎信息
     const addItemBtn = document.getElementById('add-item-btn');//添加事项按钮
     const tologinpage = document.getElementById('tologinpage');
+    const tofilestorage = document.getElementById('tofilestorage');//我的网盘
     const todoListElement = document.getElementById('todo-list');
     const addItemModal = document.getElementById('add-item-modal');
     const addItemSubmitBtn = document.getElementById('add-item-submit');
@@ -126,9 +128,14 @@
     const welcomeInformation = "欢迎用户，"+nickname;
     userInfoElement.textContent = welcomeInformation;
     func_getItems();
+
     tologinpage.addEventListener("click", ()=>{
       console.log('tologinpage');
       window.location.href = "/control/tologinpage";
+    });
+    tofilestorage.addEventListener("click", ()=>{
+      console.log('tofileStorage');
+      window.location.href = "/control/touserpanpage";
     })
 
     //函数：发送请求获取事项数据并刷新

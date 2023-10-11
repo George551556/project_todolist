@@ -16,16 +16,7 @@ func GetUserItems(c *gin.Context) {
 		fmt.Println(err)
 	}
 	items := utils.Db_findItems(userid)
-	//对时间格式进行解析优化
-	// for i := range items {
-	// 	temp_time := items[i].CreateTime
-	// 	this_time, err1 := time.Parse(time.RFC3339, temp_time)
-	// 	if err1 != nil {
-	// 		fmt.Println("one of the Createtime parse failed...")
-	// 	}
-	// 	res_time := this_time.Format("2006-01-02 15:04")
-	// 	items[i].CreateTime = res_time
-	// }
+
 	//返回数据
 	c.JSON(200, gin.H{
 		"items": items,
@@ -101,4 +92,24 @@ func ChangeState(c *gin.Context) {
 	} else {
 		c.Status(400)
 	}
+}
+
+// 路由函数：根据传入的文件以及用户id存储文件并存储文件信息
+func UploadFile(c *gin.Context) {
+	userid := c.PostForm("userid")
+	file, file_err := c.FormFile("file")
+
+	if file_err != nil {
+		fmt.Println("上传文件为空")
+		c.JSON(400, gin.H{})
+	}
+
+	file.Filename = "files/" + file.Filename //设置保存文件的地址及文件名
+	fmt.Println(userid, file.Filename)
+	//文件存储在本地
+	c.SaveUploadedFile(file, file.Filename)
+
+	//文件及用户信息保存在数据库
+
+	c.JSON(200, gin.H{"msg": "上传成功"})
 }

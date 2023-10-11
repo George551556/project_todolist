@@ -12,4 +12,5 @@ func InitControl(r *gin.Engine) {
 	control.GET("/tosignuppage", router_func.Tosignuppage)
 	control.GET("/tousermainpage", router_func.Tousermainpage)
 	control.GET("/totestpage", router_func.Totestpage)
+	control.GET("/touserpanpage", router_func.ToUserPan)
 }

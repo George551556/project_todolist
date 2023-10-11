@@ -14,3 +14,6 @@ func Tousermainpage(c *gin.Context) {
 func Totestpage(c *gin.Context) {
 	c.HTML(200, "test.html", gin.H{})
 }
+func ToUserPan(c *gin.Context) {
+	c.HTML(200, "userPan.html", gin.H{})
+}
