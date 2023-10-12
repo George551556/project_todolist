@@ -19,4 +19,7 @@ func InitUserProfile(r *gin.Engine) {
 
 	//网盘相关路由
 	userpro.POST("/uploadfile", router_func.UploadFile)
+	userpro.POST("/downloadfile", router_func.DownloadFile)
+	userpro.POST("/deletefile", router_func.DeleteFile)
+	userpro.POST("/getfileitems", router_func.GetFileItems)
 }

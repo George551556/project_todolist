@@ -288,3 +288,38 @@ func Db_storeFiles(user_id int, file_name string, file_site string) string {
 		return "成功覆盖已有文件"
 	}
 }
+
+// 根据user_id返回用户的文件信息
+func Db_findFiles(userid int) []PanFile {
+	db, err = gorm.Open(mysql.Open(dsn))
+	if err != nil {
+		panic(err)
+	}
+	var results []PanFile
+	db.Where(&PanFile{UserId: userid}).Find(&results)
+	return results
+}
+
+// 根据userid和file_id返回对应文件的存放目录及文件名
+func Db_getFileInfo(userid int, file_id int) PanFile {
+	db, err = gorm.Open(mysql.Open(dsn))
+	if err != nil {
+		panic(err)
+	}
+	var result PanFile
+	db.Where(&PanFile{UserId: userid, Id: file_id}).Find(&result)
+	return result
+}
+
+// 根据userid和file_id删除一条文件信息
+func Db_deleteFileInfo(userid int, file_id int) (bool, PanFile) {
+	db, err = gorm.Open(mysql.Open(dsn))
+	if err != nil {
+		panic(err)
+	}
+
+	var temp PanFile
+	db.Where(&PanFile{Id: file_id, UserId: userid}).Find(&temp)
+	err1 := db.Delete(&temp).Error
+	return err1 == nil, temp
+}

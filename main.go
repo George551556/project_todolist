@@ -17,6 +17,7 @@ func main() {
 	//加载模板目录下模板文件
 	r.LoadHTMLGlob("templates/*")
 	r.StaticFile("/static/file1", "static/数.txt")
+	r.StaticFile("/static/file2", "static/cxk.png")
 
 	r.GET("/", rtHTML)
 	r.POST("/dingxiang", rRedirect)
