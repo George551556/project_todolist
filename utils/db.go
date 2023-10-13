@@ -180,6 +180,15 @@ func Db_createOneItem(userid int, content string) bool {
 	if err != nil {
 		panic(err)
 	}
+
+	//查询该用户拥有的todo条数
+	var todoCount int64
+	db.Model(&Items{UserId: userid}).Count(&todoCount)
+	if todoCount >= 100 {
+		fmt.Println("超限...")
+		return false
+	}
+
 	tempItem := Items{UserId: userid, Content: content, CreateTime: time.Now(), State: false}
 	err := db.Create(&tempItem).Error
 	fmt.Println("添加事项执行完.....")
