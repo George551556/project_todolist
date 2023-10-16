@@ -72,9 +72,20 @@ func Db_makeTable() {
 		panic(err)
 	}
 
+	//迁移表
 	db.AutoMigrate(&User{})
 	db.AutoMigrate(&Items{})
 	db.AutoMigrate(&PanFile{})
+
+	//连接数
+	sqlDB, err1 := db.DB()
+	sqlDB.SetMaxIdleConns(10)
+	sqlDB.SetMaxOpenConns(80)
+	sqlDB.SetConnMaxLifetime(time.Second * 8)
+	if err1 != nil {
+		panic("连接数据库失败")
+	}
+
 	fmt.Println("tables make succs")
 }
 
@@ -183,9 +194,11 @@ func Db_createOneItem(userid int, content string) bool {
 
 	//查询该用户拥有的todo条数
 	var todoCount int64
-	db.Model(&Items{UserId: userid}).Count(&todoCount)
+	var useless []Items
+	// db.Model(&Items{UserId: userid, deleted_at}).Count(&todoCount)
+	db.Where(&Items{UserId: userid}).Find(&useless).Count(&todoCount)
 	if todoCount >= 100 {
-		fmt.Println("超限...")
+		fmt.Println("用户", userid, "超限...", todoCount)
 		return false
 	}
 

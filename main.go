@@ -9,9 +9,6 @@ import (
 )
 
 func main() {
-	// utils.Db_findItems(4)
-
-	// utils.Db_createOneUser(2020, "123asd", "小猪佩奇")
 
 	r := gin.Default()
 	//加载模板目录下模板文件

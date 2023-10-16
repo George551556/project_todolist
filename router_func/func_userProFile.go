@@ -31,9 +31,13 @@ func AddItem(c *gin.Context) {
 		fmt.Println(err)
 	}
 	content := c.PostForm("content")
-	utils.Db_createOneItem(userid, content)
-	fmt.Println("添加事项:", userid, "内容：", content)
-	c.Status(200)
+	if utils.Db_createOneItem(userid, content) {
+		fmt.Println("添加事项:", userid, "内容：", content)
+		c.Status(200)
+	} else {
+		c.Status(400)
+	}
+
 }
 
 // 路由函数：根据传入的userid以及content修改用户的昵称
