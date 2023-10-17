@@ -215,7 +215,7 @@ func Db_findItems(userid int) []Items {
 		panic(err)
 	}
 	var tempItems []Items
-	db.Where(&Items{UserId: userid}).Find(&tempItems) // 也可以使用 db.Where("UserId = ?", userId).Find(&items)
+	db.Where(&Items{UserId: userid}).Order("create_time desc").Find(&tempItems) // 也可以使用db.Where("UserId = ?", userId).Find(&items)
 	fmt.Println("查找执行完毕")
 	// for i := range tempItems {
 	// 	fmt.Println(i, "行：", tempItems[i])
@@ -223,14 +223,19 @@ func Db_findItems(userid int) []Items {
 	return tempItems
 }
 
-// 修改某事项的工作内容
+// 修改某事项的工作内容，同时更新其修改（创建）时间
 func Db_changeItemContent(id int, newContent string) bool {
 	db, err = gorm.Open(mysql.Open(dsn))
 	if err != nil {
 		panic(err)
 	}
 	tempItem := Items{Id: id}
-	this_err := db.Model(&tempItem).Update("content", newContent).Error
+	myUpdates := map[string]interface{}{
+		"Content":    newContent,
+		"CreateTime": time.Now(),
+	}
+	// this_err := db.Model(&tempItem).Update("content", newContent).Error
+	this_err := db.Model(&tempItem).Updates(myUpdates).Error
 	fmt.Println("执行修改事项内容函数")
 	return this_err == nil
 }
