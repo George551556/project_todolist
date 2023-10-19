@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .add-item-btn {
+            padding: 5px 10px;
+            font-size: 12px;
+            background-color: #70b09c;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .add-item-btn:hover {
+            background-color: #5a917a;
+        }
+        #outer{
+            width: 80%;
+            padding: 5px 6px 35px 6px;
+            border: 3px solid #4079a9;
+            position: relative;
+            margin: 0 auto;
+        }
+        ul {
+            height: 360px;
+            overflow-y: auto;
+            border: 1px dashed #c5c7ca;
+        }
+    </style>
+</head>
+<body>
+    <h2>hello 聊天室</h2>
+    <button id="goback" class="add-item-btn">返回首页</button>
+    <button id="conn_cancel" class="add-item-btn">断开连接</button>
+    <hr>
+    <b>收到消息</b>
+    <P id="showNums"></P>
+    <div id="outer"></div><hr>
+    <input id="input_msg">
+    <button id="send">发送</button>
+
+
+    <script>
+        const goback = document.getElementById("goback");
+        const conn_cancel = document.getElementById("conn_cancel");
+        const showNums = document.getElementById("showNums");
+        const outer = document.getElementById("outer");
+        const input_msg = document.getElementById("input_msg");
+        const send = document.getElementById("send");
+        const userid = localStorage.getItem('userid');
+
+        //初始化一些东西
+        var socket = new WebSocket("ws://127.0.0.1:8000/ws");
+        const ul = document.createElement("ul");
+
+        //函数编写
+        socket.onopen = (event)=>{
+            console.log("连接成功");
+        }
+        socket.onmessage = (event)=>{
+            var raw_msg = event.data;
+            console.log("接收一个消息:", raw_msg);
+            //析取消息数据
+            var msg_type = raw_msg.split(",")[0];
+            var msg_userid = raw_msg.split(",")[1];
+            var msg_nickName = raw_msg.split(",")[2];
+            var msg_content = raw_msg.split(",")[3];
+
+            //处理消息
+            if (msg_type === "0"){
+                //普通消息
+                const newLi = document.createElement("li");
+                newLi.style.overflow = "hidden";
+                const newSpan = document.createElement("span");
+                newSpan.innerHTML = msg_nickName+":"+msg_content;
+                newLi.appendChild(newSpan);
+
+                //设置左右格式
+                if (msg_userid === userid){
+                    console.log("设置格式：",msg_userid, userid)
+                    newSpan.style.float = "right";
+                    newSpan.style.backgroundColor = "green";
+                }
+                else{
+                    newSpan.style.backgroundColor = "gray";
+                }
+                newSpan.style.width = "60%";
+                
+                ul.appendChild(newLi);
+                outer.innerHTML = "";
+                outer.appendChild(ul);
+            }
+            else if(msg_type === "1"){
+                //人数改变
+                showNums.textContent = "当前在线人数: "+msg_userid
+            }
+            else if(msg_type === "2"){
+                //表情
+                const temp_li = document.createElement("li");
+                const new_p = document.createElement("p");
+                const img = document.createElement("img");
+                new_p.textContent = msg_nickName+":";
+                img.src = "http://127.0.0.1:8000/express/"+msg_content;
+
+                //设置格式
+                temp_li.style.overflow = "hidden";
+                new_p.style.float = "right";
+                img.style.float = "right";
+
+                temp_li.appendChild(new_p);
+                temp_li.appendChild(img);
+                ul.appendChild(temp_li);
+                outer.innerHTML = "";
+                outer.appendChild(ul)
+            }
+        }
+
+        send.addEventListener("click", ()=>{
+            if (input_msg.value === ""){
+                alert("请输入消息");
+            }
+            else if(userid === null){
+                alert("系统出错");
+            }
+            else{
+                const new_msg = userid+","+input_msg.value;
+                socket.send(new_msg);
+                input_msg.value = "";
+            }
+        })
+
+        conn_cancel.addEventListener("click", ()=>{
+            socket.close();
+        })
+
+        goback.addEventListener("click", ()=>{
+            window.location.href = "/control/tousermainpage";
+        })
+
+    </script>
+</body>
+</html>
