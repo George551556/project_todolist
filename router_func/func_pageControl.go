@@ -17,3 +17,6 @@ func Totestpage(c *gin.Context) {
 func ToUserPan(c *gin.Context) {
 	c.HTML(200, "userPan.html", gin.H{})
 }
+func ToChanPage(c *gin.Context) {
+	c.HTML(200, "chatRoom.html", gin.H{})
+}

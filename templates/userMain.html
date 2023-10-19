@@ -92,6 +92,7 @@
   <button onclick="func_visibleItemModal(3)" class="add-item-btn">修改昵称</button>
   <button id="tologinpage" class="add-item-btn">重新登录</button>
   <button id="tofilestorage" class="add-item-btn">我的网盘</button>
+  <button id="tochatroom" class="add-item-btn">公共聊天</button>
   <hr>
 
   <!-- 修改或添加事项弹窗:点击按钮则显示此div -->
@@ -115,6 +116,7 @@
     const addItemBtn = document.getElementById('add-item-btn');//添加事项按钮
     const tologinpage = document.getElementById('tologinpage');
     const tofilestorage = document.getElementById('tofilestorage');//我的网盘
+    const tochatroom = document.getElementById('tochatroom');//公共聊天
     const todoListElement = document.getElementById('todo-list');
     const addItemModal = document.getElementById('add-item-modal');
     const addItemSubmitBtn = document.getElementById('add-item-submit');
@@ -136,6 +138,9 @@
     tofilestorage.addEventListener("click", ()=>{
       console.log('tofileStorage');
       window.location.href = "/control/touserpanpage";
+    })
+    tochatroom.addEventListener("click", ()=>{
+      window.location.href = "/control/tochatpage";
     })
 
     //函数：发送请求获取事项数据并刷新
