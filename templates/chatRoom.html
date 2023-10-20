@@ -46,6 +46,7 @@
     <P id="showNums"></P>
     <div id="outer"></div><hr>
     <input id="input_msg">
+    <button id="express">点击更换表情</button>
     <button id="send">发送</button>
 
 
@@ -55,6 +56,7 @@
         const showNums = document.getElementById("showNums");
         const outer = document.getElementById("outer");
         const input_msg = document.getElementById("input_msg");
+        const express = document.getElementById("express");
         const send = document.getElementById("send");
         const userid = localStorage.getItem('userid');
 
@@ -64,6 +66,7 @@
         var address = "ws://"+Ip_Port+"/ws";
         var socket = new WebSocket(address);
         const ul = document.createElement("ul");
+        var exp_select = 0;
 
         //函数编写
         socket.onopen = (event)=>{
@@ -151,6 +154,12 @@
 
         goback.addEventListener("click", ()=>{
             window.location.href = "/control/tousermainpage";
+        })
+
+        //表情更换
+        express.addEventListener("click", ()=>{
+            input_msg.value = "["+exp_select+"]";
+            exp_select = (exp_select+1)%10;
         })
 
         //回车发送消息
