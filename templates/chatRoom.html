@@ -30,6 +30,11 @@
             overflow-y: auto;
             border: 1px dashed #c5c7ca;
         }
+        li {
+            list-style: none;
+            overflow: hidden;
+            margin: 10px 10px;
+        }
     </style>
 </head>
 <body>
@@ -53,8 +58,11 @@
         const send = document.getElementById("send");
         const userid = localStorage.getItem('userid');
 
+        const Ip_Port = "127.0.0.1:8000";
+
         //初始化一些东西
-        var socket = new WebSocket("ws://127.0.0.1:8000/ws");
+        var address = "ws://"+Ip_Port+"/ws";
+        var socket = new WebSocket(address);
         const ul = document.createElement("ul");
 
         //函数编写
@@ -83,10 +91,11 @@
                 if (msg_userid === userid){
                     console.log("设置格式：",msg_userid, userid)
                     newSpan.style.float = "right";
+                    newSpan.style.color = "white";
                     newSpan.style.backgroundColor = "green";
                 }
                 else{
-                    newSpan.style.backgroundColor = "gray";
+                    // newSpan.style.backgroundColor = "gray";
                 }
                 newSpan.style.width = "60%";
                 
@@ -104,12 +113,14 @@
                 const new_p = document.createElement("p");
                 const img = document.createElement("img");
                 new_p.textContent = msg_nickName+":";
-                img.src = "http://127.0.0.1:8000/express/"+msg_content;
+                img.src = "http://" + Ip_Port + "/express/"+msg_content;
 
-                //设置格式
-                temp_li.style.overflow = "hidden";
-                new_p.style.float = "right";
-                img.style.float = "right";
+                //设置左右格式
+                if (msg_userid === userid){
+                    temp_li.style.overflow = "hidden";
+                    new_p.style.float = "right";
+                    img.style.float = "right";
+                }
 
                 temp_li.appendChild(new_p);
                 temp_li.appendChild(img);
@@ -117,6 +128,7 @@
                 outer.innerHTML = "";
                 outer.appendChild(ul)
             }
+            ul.scrollTop = ul.scrollHeight;
         }
 
         send.addEventListener("click", ()=>{
@@ -140,6 +152,14 @@
         goback.addEventListener("click", ()=>{
             window.location.href = "/control/tousermainpage";
         })
+
+        //回车发送消息
+        document.onkeydown = function (ev) {
+        ev = ev || window.event;
+        if (ev.keyCode === 13) {
+            send.click();
+        }
+    };
 
     </script>
 </body>

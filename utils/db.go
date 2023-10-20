@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	"strconv"
 	"time"
 
 	"gorm.io/driver/mysql"
@@ -181,6 +182,22 @@ func Db_Login_middle(username int, password string) (bool, int, string) {
 		fmt.Println("用户", tempUser.Nickname, "验证失败。。。")
 		return false, -1, ""
 	}
+}
+
+// 根据ID查昵称，返回昵称字符串
+func Db_getNickName(userid string) string {
+	db, err = gorm.Open(mysql.Open(dsn))
+	if err != nil {
+		panic(err)
+	}
+	userId, err1 := strconv.Atoi(userid)
+	if err != nil {
+		fmt.Println("转换失败", err1)
+		return "错昵称"
+	}
+	var resultUser User
+	db.Where(&User{Id: userId}).Find(&resultUser)
+	return resultUser.Nickname
 }
 
 // ===============================================================================================================

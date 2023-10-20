@@ -117,7 +117,7 @@ func handleWebSocket(c *gin.Context) {
 		//析取消息,原消息：id, content
 		decode_msg := string(msg)
 		msg_UserId := strings.Split(decode_msg, ",")[0]
-		nickName := "用户佚名" //此处根据msg_UserId查询数据库获取对应的nickname
+		nickName := utils.Db_getNickName(msg_UserId) //此处根据msg_UserId查询数据库获取对应的nickname
 		msg_Content := strings.Split(decode_msg, ",")[1]
 		if len(msg_Content) == 3 && msg_Content[0] == '[' && msg_Content[2] == ']' {
 			//进入表情判断
