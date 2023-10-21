@@ -35,6 +35,9 @@
             overflow: hidden;
             margin: 10px 10px;
         }
+        span{
+            margin: 2px 2px;
+        }
     </style>
 </head>
 <body>
@@ -75,6 +78,7 @@
         socket.onmessage = (event)=>{
             var raw_msg = event.data;
             console.log("接收一个消息:", raw_msg);
+
             //析取消息数据
             var msg_type = raw_msg.split(",")[0];
             var msg_userid = raw_msg.split(",")[1];
@@ -86,21 +90,34 @@
                 //普通消息
                 const newLi = document.createElement("li");
                 newLi.style.overflow = "hidden";
-                const newSpan = document.createElement("span");
-                newSpan.innerHTML = msg_nickName+":"+msg_content;
-                newLi.appendChild(newSpan);
+                const newSpan_NickName = document.createElement("span");
+                const br = document.createElement("br");
+                const newSpan_Content = document.createElement("span");
+                // newSpan.innerHTML = msg_nickName+":"+msg_content;
+                newSpan_NickName.innerText = msg_nickName;
+                newSpan_Content.innerText = msg_content;
 
                 //设置左右格式
                 if (msg_userid === userid){
-                    console.log("设置格式：",msg_userid, userid)
-                    newSpan.style.float = "right";
-                    newSpan.style.color = "white";
-                    newSpan.style.backgroundColor = "green";
+                    console.log("设置格式：",msg_userid, userid);
+                    newSpan_NickName.style.float = "right";
+                    newSpan_Content.style.float = "right";
+                    newSpan_Content.style.color = "white";
+                    newSpan_Content.style.backgroundColor = "green";
+
+                    //先添加昵称再添加内容
+                    newLi.appendChild(newSpan_NickName);
+                    newLi.appendChild(br);
+                    newLi.appendChild(newSpan_Content);
                 }
                 else{
-                    // newSpan.style.backgroundColor = "gray";
+                    //先添加内容，再添加昵称
+                    newLi.appendChild(newSpan_NickName);
+                    newLi.appendChild(br);
+                    newLi.appendChild(newSpan_Content);
+                    newSpan_Content.style.backgroundColor = "#F0F0F0";                    
                 }
-                newSpan.style.width = "60%";
+                // newSpan.style.width = "60%";
                 
                 ul.appendChild(newLi);
                 outer.innerHTML = "";
@@ -115,7 +132,7 @@
                 const temp_li = document.createElement("li");
                 const new_p = document.createElement("p");
                 const img = document.createElement("img");
-                new_p.textContent = msg_nickName+":";
+                new_p.textContent = msg_nickName;
                 img.src = "http://" + Ip_Port + "/express/"+msg_content;
 
                 //设置左右格式
@@ -127,6 +144,7 @@
 
                 temp_li.appendChild(new_p);
                 temp_li.appendChild(img);
+                
                 ul.appendChild(temp_li);
                 outer.innerHTML = "";
                 outer.appendChild(ul)
