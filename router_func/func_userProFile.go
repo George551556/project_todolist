@@ -2,6 +2,7 @@ package router_func
 
 import (
 	"fmt"
+	"io/ioutil"
 	"strconv"
 	"todolist/utils"
 
@@ -144,8 +145,18 @@ func DownloadFile(c *gin.Context) {
 	dir := file_info.FileSite
 	filename := file_info.FileName
 
-	// c.Header("Content-Disposition", "attachment: filename="+filename)
-	c.File(dir + filename)
+	fileContent, err1 := ioutil.ReadFile(dir + filename)
+	if err1 != nil {
+		fmt.Println("文件打开失败")
+		fmt.Println(err)
+		return
+	}
+
+	c.Header("Content-Type", "application/octet-stream")
+	c.Header("Content-Disposition", "attachment: filename=\""+filename+"\"")
+	c.Data(200, "application/octet-stream", fileContent)
+	// c.File(dir + filename)
+
 }
 
 // 路由函数：根据传入的userid和file_id删除文件信息和文件

@@ -38,6 +38,39 @@
         span{
             margin: 2px 2px;
         }
+        .notification {
+            position: fixed;
+            top: 8%;
+            left: 50%;
+            transform: translate(-50%, -60%);
+            background-color: #70b09c;
+            padding: 10px 20px;
+            border-radius: 30px;
+            box-shadow: 0 10px 8px rgba(26, 24, 35, 0.4);
+            visibility: hidden;
+        }
+        @keyframes slideIn {
+            0% {
+                top: -100px;
+            }
+            50% {
+                top: 50px;
+            }
+            100% {
+                top: 8%;
+            }
+        }
+        @keyframes slideOut {
+            0% {
+                top: 8%;
+            }
+            50% {
+                top: 50px;
+            }
+            100% {
+                top: -100px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -51,6 +84,8 @@
     <input id="input_msg">
     <button id="express">点击更换表情</button>
     <button id="send">发送</button>
+    <!-- 通知弹窗 -->
+    <div id="notification" class="notification"></div>
 
 
     <script>
@@ -125,6 +160,15 @@
             }
             else if(msg_type === "1"){
                 //人数改变
+                var lastNum = parseInt(showNums.textContent);
+                var nextNum = parseInt(msg_userid);
+                if (nextNum>lastNum){
+                    showNotification("用户进入", 3000);
+                }
+                else if (nextNum<lastNum){
+                    showNotification("用户退出", 3000);
+                }
+
                 showNums.textContent = "当前在线人数: "+msg_userid
             }
             else if(msg_type === "2"){
@@ -182,11 +226,27 @@
 
         //回车发送消息
         document.onkeydown = function (ev) {
-        ev = ev || window.event;
-        if (ev.keyCode === 13) {
-            send.click();
+            ev = ev || window.event;
+            if (ev.keyCode === 13) {
+                send.click();
+            }
+        };
+
+        // 函数:产生一个临时的提示信息
+        function showNotification(message, duration) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.style.visibility = 'visible';
+            notification.style.animation = 'slideIn 0.5s ease-in-out forwards';
+            setTimeout(()=>{
+                notification.style.animation = 'slideOut 0.5s ease-in-out forwards';
+                setTimeout(() => {
+                    notification.style.visibility = 'hidden';
+                    notification.style.animation = '';
+                }, 1000);
+            }, duration);
         }
-    };
+    
 
     </script>
 </body>
