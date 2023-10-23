@@ -105,6 +105,7 @@
         var socket = new WebSocket(address);
         const ul = document.createElement("ul");
         var exp_select = 0;
+        var peopleNum = 0;
 
         //函数编写
         socket.onopen = (event)=>{
@@ -160,16 +161,16 @@
             }
             else if(msg_type === "1"){
                 //人数改变
-                var lastNum = parseInt(showNums.textContent);
                 var nextNum = parseInt(msg_userid);
-                if (nextNum>lastNum){
+                console.log("人数改变：", peopleNum, nextNum);
+                if (nextNum>peopleNum){
                     showNotification("用户进入", 3000);
                 }
-                else if (nextNum<lastNum){
+                else if (nextNum<peopleNum){
                     showNotification("用户退出", 3000);
                 }
-
-                showNums.textContent = "当前在线人数: "+msg_userid
+                showNums.textContent = "当前在线人数: "+msg_userid;
+                peopleNum = nextNum;
             }
             else if(msg_type === "2"){
                 //表情
