@@ -49,6 +49,19 @@
             box-shadow: 0 10px 8px rgba(26, 24, 35, 0.4);
             visibility: hidden;
         }
+        .exp_container{
+            background: linear-gradient(to bottom, #ffcc00, #ff6600);
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            flex-direction: column;
+            visibility: hidden;
+        }
+        .btn_exp{
+            margin: 5px;
+            font-size: 24px;
+        }
         @keyframes slideIn {
             0% {
                 top: -100px;
@@ -86,6 +99,9 @@
     <button id="send">发送</button>
     <!-- 通知弹窗 -->
     <div id="notification" class="notification"></div>
+    <!-- 表情弹窗 -->
+    <div id="exp_container" class="exp_container">
+    </div>
 
 
     <script>
@@ -96,6 +112,7 @@
         const input_msg = document.getElementById("input_msg");
         const express = document.getElementById("express");
         const send = document.getElementById("send");
+        const exp_container = document.getElementById("exp_container");
         const userid = localStorage.getItem('userid');
 
         const Ip_Port = "127.0.0.1:8000";
@@ -104,8 +121,18 @@
         var address = "ws://"+Ip_Port+"/ws";
         var socket = new WebSocket(address);
         const ul = document.createElement("ul");
-        var exp_select = 0;
         var peopleNum = 0;
+
+        //获取表情名称数组
+        fetch("/userpro/getexpnames", {
+            method:"POST",
+        }).then(response=>{
+            response.json().then(data=>{
+                // console.log("表情：", data.names);
+                //根据数组data.names渲染表情按钮
+                render_exp_button(data.names);
+            })
+        })
 
         //函数编写
         socket.onopen = (event)=>{
@@ -196,7 +223,7 @@
             }
             ul.scrollTop = ul.scrollHeight;
         }
-
+        //点击发送消息
         send.addEventListener("click", ()=>{
             if (input_msg.value === ""){
                 alert("请输入消息");
@@ -205,7 +232,7 @@
                 alert("系统出错");
             }
             else{
-                const new_msg = userid+","+input_msg.value;
+                const new_msg = userid+"," + "0" + "," + input_msg.value;//0，表示信息类型为正常信息
                 socket.send(new_msg);
                 input_msg.value = "";
             }
@@ -216,13 +243,13 @@
         })
 
         goback.addEventListener("click", ()=>{
+            //返回首页
             window.location.href = "/control/tousermainpage";
         })
 
-        //表情更换
+        //显示表情框
         express.addEventListener("click", ()=>{
-            input_msg.value = "["+exp_select+"]";
-            exp_select = (exp_select+1)%10;
+            exp_container.style.visibility = "visible";
         })
 
         //回车发送消息
@@ -232,6 +259,24 @@
                 send.click();
             }
         };
+
+        //函数：渲染表情按钮
+        function render_exp_button(items){
+            items.forEach(item => {
+                var tempButton = document.createElement("button");
+                tempButton.textContent = item;
+                tempButton.classList.add("btn_exp");
+                tempButton.onclick = ()=>{
+                    const new_msg = userid + "," + "1" + "," + item;
+                    socket.send(new_msg);
+                    exp_container.style.visibility = "hidden";
+                }
+
+                //添加到大div中
+                exp_container.appendChild(tempButton);
+            });
+
+        }
 
         // 函数:产生一个临时的提示信息
         function showNotification(message, duration) {

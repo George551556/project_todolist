@@ -22,4 +22,7 @@ func InitUserProfile(r *gin.Engine) {
 	userpro.POST("/downloadfile", router_func.DownloadFile)
 	userpro.POST("/deletefile", router_func.DeleteFile)
 	userpro.POST("/getfileitems", router_func.GetFileItems)
+
+	//聊天室相关路由
+	userpro.POST("/getexpnames", router_func.GetExpressNames)
 }

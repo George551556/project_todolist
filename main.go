@@ -114,27 +114,21 @@ func handleWebSocket(c *gin.Context) {
 		if err != nil {
 			break
 		}
-		//析取消息,原消息：id, content
+		//析取消息,原消息：id, type, content
 		decode_msg := string(msg)
 		msg_UserId := strings.Split(decode_msg, ",")[0]
-		nickName := utils.Db_getNickName(msg_UserId) //此处根据msg_UserId查询数据库获取对应的nickname
-		msg_Content := strings.Split(decode_msg, ",")[1]
-		if len(msg_Content) == 3 && msg_Content[0] == '[' && msg_Content[2] == ']' {
-			//进入表情判断
-			if msg_Content[1] >= '0' && msg_Content[1] <= '9' {
-				//发送表情，"2, id, Jack, 1.gif"
-				decode_msg_1 := "2," + msg_UserId + "," + nickName + "," + string(msg_Content[1]) + ".gif" //此时，字符串值为 "2,x.gif"
-				// fmt.Println("lkz:", decode_msg_1)
-				new_msg := []byte(decode_msg_1)
-				ch <- new_msg
-			} else {
-				//单纯文字消息
-				decode_msg_1 := "0," + msg_UserId + "," + nickName + "," + msg_Content
-				new_msg := []byte(decode_msg_1)
-				ch <- new_msg
-			}
+		msg_type := strings.Split(decode_msg, ",")[1] //消息类型，0正常消息， 1表情消息
+		nickName := utils.Db_getNickName(msg_UserId)  //此处根据msg_UserId查询数据库获取对应的nickname
+		msg_Content := strings.Split(decode_msg, ",")[2]
+		if msg_type == "1" {
+			//发送表情，"2, id, Jack, 1.gif"
+			decode_msg_1 := "2," + msg_UserId + "," + nickName + "," + msg_Content + ".gif" //此时，字符串值为 "2,x.gif"
+			// fmt.Println("lkz:", decode_msg_1)
+			new_msg := []byte(decode_msg_1)
+			ch <- new_msg
+
 		} else {
-			//单纯文字消息
+			//发送文字消息
 			decode_msg_1 := "0," + msg_UserId + "," + nickName + "," + msg_Content
 			new_msg := []byte(decode_msg_1)
 			ch <- new_msg

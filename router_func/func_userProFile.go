@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"strconv"
+	"strings"
 	"todolist/utils"
 
 	"github.com/gin-gonic/gin"
@@ -194,4 +195,23 @@ func GetFileItems(c *gin.Context) {
 	}
 	results := utils.Db_findFiles(userid)
 	c.JSON(200, gin.H{"items": results})
+}
+
+// 返回表情名称数组 express目录下
+func GetExpressNames(c *gin.Context) {
+	dir := "express"
+	files, err := ioutil.ReadDir(dir)
+	if err != nil {
+		panic(err)
+	}
+	front_names := make([]string, 0) //存储表情的名字
+	for _, file := range files {
+		if file.IsDir() {
+			continue
+		}
+		front_names = append(front_names, strings.Split(file.Name(), ".")[0])
+	}
+	fmt.Println("表情：", front_names)
+
+	c.JSON(200, gin.H{"names": front_names})
 }
