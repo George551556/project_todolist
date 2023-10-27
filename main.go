@@ -31,6 +31,7 @@ func main() {
 	r.LoadHTMLGlob("templates/*")
 	r.StaticFile("/static/file2", "static/cxk.png")
 	r.Static("express", "express/")
+	utils.Db_makeTable() //初始化数据库连接选项
 
 	peopleNums = 0
 	onLineNums = 0

@@ -16,6 +16,7 @@ func InitUserProfile(r *gin.Engine) {
 	userpro.POST("/changeitemcontent", router_func.ChangeItemContent)
 	userpro.POST("/deleteitem", router_func.DeleteItem)
 	userpro.POST("/changestate", router_func.ChangeState)
+	userpro.POST("/keyfind", router_func.KeyFind)
 
 	//网盘相关路由
 	userpro.POST("/uploadfile", router_func.UploadFile)

@@ -94,6 +94,10 @@
   <button id="tologinpage" class="add-item-btn">重新登录</button>
   <button id="tofilestorage" class="add-item-btn">我的网盘</button>
   <button id="tochatroom" class="add-item-btn">公共聊天</button>
+  <div style="float: right;">
+    <input id="content_key" placeholder="搜索事项内容">
+    <button id="content_key_submit">查询</button>
+  </div>
   <hr>
 
   <!-- 修改或添加事项弹窗:点击按钮则显示此div -->
@@ -118,6 +122,8 @@
     const tologinpage = document.getElementById('tologinpage');
     const tofilestorage = document.getElementById('tofilestorage');//我的网盘
     const tochatroom = document.getElementById('tochatroom');//公共聊天
+    const content_key = document.getElementById("content_key");//条件搜索输入`
+    const content_key_submit = document.getElementById("content_key_submit");
     const todoListElement = document.getElementById('todo-list');
     const addItemModal = document.getElementById('add-item-modal');
     const addItemSubmitBtn = document.getElementById('add-item-submit');
@@ -139,9 +145,35 @@
     tofilestorage.addEventListener("click", ()=>{
       console.log('tofileStorage');
       window.location.href = "/control/touserpanpage";
-    })
+    });
     tochatroom.addEventListener("click", ()=>{
       window.location.href = "/control/tochatpage";
+    });
+
+    //搜索按钮事件绑定
+    content_key_submit.addEventListener("click", ()=>{
+      const key = content_key.value;
+      content_key.value = "";
+      const formData = new FormData();
+      formData.append('userid', userid);
+      formData.append('key', key);
+
+      fetch("/userpro/keyfind", {
+        method:"POST",
+        body:formData,
+      }).then(response => {
+        response.json().then(data =>{
+          let temp_items = data.items;
+          if(temp_items.length === 0){
+            showNotification("未查询到包含关键字的事项", 3000);
+          }
+          else{
+            showNotification("查询成功！！！再次点击查询可取消", 3000)
+            renderTodoList(data.items);
+          }
+          // renderTodoList(temp_items);
+        })
+      })
     })
 
     //函数：发送请求获取事项数据并刷新
@@ -426,6 +458,17 @@
             notification.style.animation = '';
         }, 1000);
       }, duration);
+    }
+
+    //监测回车按钮
+    document.onkeydown = (ev) =>{
+      ev =ev || window.event;
+      if (ev.keyCode === 13){
+        if(content_key.focus){
+          //如果此时焦点在筛选框上那么回车直接点击查询
+          content_key_submit.click();
+        }
+      }
     }
 
   </script>

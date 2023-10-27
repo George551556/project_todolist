@@ -100,6 +100,20 @@ func ChangeState(c *gin.Context) {
 	}
 }
 
+// 路由函数：根据传入的关键字返回内容包含关键字的事项列表
+func KeyFind(c *gin.Context) {
+	temp_userid := c.PostForm("userid")
+	userid, err := strconv.Atoi(temp_userid)
+	if err != nil {
+		fmt.Println(err)
+	}
+	key := c.PostForm("key")
+	items := utils.Db_findContentInclude(userid, key)
+	c.JSON(200, gin.H{
+		"items": items,
+	})
+}
+
 // 路由函数：根据传入的文件以及用户id存储文件并存储文件信息
 func UploadFile(c *gin.Context) {
 	temp_userid := c.PostForm("userid")

@@ -92,10 +92,10 @@ func Db_makeTable() {
 
 // 增加一个成员
 func Db_createOneUser(username uint, password string, nickname string) bool {
-	db, err = gorm.Open(mysql.Open(dsn))
-	if err != nil {
-		panic(err)
-	}
+	// db, err = gorm.Open(mysql.Open(dsn))
+	// if err != nil {
+	// 	panic(err)
+	// }
 	tempUser := User{
 		Username:   username,
 		Password:   password,
@@ -122,10 +122,10 @@ func Db_createOneUser(username uint, password string, nickname string) bool {
 
 // 查询成员
 func Db_findUsers() {
-	db, err = gorm.Open(mysql.Open(dsn))
-	if err != nil {
-		panic(err)
-	}
+	// db, err = gorm.Open(mysql.Open(dsn))
+	// if err != nil {
+	// 	panic(err)
+	// }
 	var userList []User
 	db.Find(&userList)
 	for i := range userList {
@@ -135,10 +135,10 @@ func Db_findUsers() {
 
 // 修改成员昵称
 func Db_change(id int, new_nickname string) bool {
-	db, err = gorm.Open(mysql.Open(dsn))
-	if err != nil {
-		panic(err)
-	}
+	// db, err = gorm.Open(mysql.Open(dsn))
+	// if err != nil {
+	// 	panic(err)
+	// }
 	tempUser := User{Id: id} //示例，按照id修改对应信息
 	err1 := db.Model(&tempUser).Update("Nickname", new_nickname).Error
 	fmt.Println("执行了修改昵称，修改为", new_nickname)
@@ -152,10 +152,10 @@ func Db_change(id int, new_nickname string) bool {
 // 删除(注销)用户
 func db_delete(id int, password string) bool {
 	//需要核对密码是否正确
-	db, err = gorm.Open(mysql.Open(dsn))
-	if err != nil {
-		panic(err)
-	}
+	// db, err = gorm.Open(mysql.Open(dsn))
+	// if err != nil {
+	// 	panic(err)
+	// }
 	tempUser := User{Id: id}
 	db.Where(&User{Id: id}).Find(tempUser)
 	// tempUser := User{Id: 4}
@@ -169,10 +169,10 @@ func db_delete(id int, password string) bool {
 
 // 根据id查密码，用于登录验证，返回验证状态以及用户ID及昵称
 func Db_Login_middle(username int, password string) (bool, int, string) {
-	db, err = gorm.Open(mysql.Open(dsn))
-	if err != nil {
-		panic(err)
-	}
+	// db, err = gorm.Open(mysql.Open(dsn))
+	// if err != nil {
+	// 	panic(err)
+	// }
 	var tempUser User
 	db.Where(&User{Username: uint(username)}).Find(&tempUser)
 	if tempUser.Password == password {
@@ -186,10 +186,10 @@ func Db_Login_middle(username int, password string) (bool, int, string) {
 
 // 根据ID查昵称，返回昵称字符串
 func Db_getNickName(userid string) string {
-	db, err = gorm.Open(mysql.Open(dsn))
-	if err != nil {
-		panic(err)
-	}
+	// db, err = gorm.Open(mysql.Open(dsn))
+	// if err != nil {
+	// 	panic(err)
+	// }
 	userId, err1 := strconv.Atoi(userid)
 	if err != nil {
 		fmt.Println("转换失败", err1)
@@ -204,10 +204,10 @@ func Db_getNickName(userid string) string {
 // 事项item相关数据库操作函数====================================================================
 // 增加一条事项记录
 func Db_createOneItem(userid int, content string) bool {
-	db, err = gorm.Open(mysql.Open(dsn))
-	if err != nil {
-		panic(err)
-	}
+	// db, err = gorm.Open(mysql.Open(dsn))
+	// if err != nil {
+	// 	panic(err)
+	// }
 
 	//查询该用户拥有的todo条数
 	var todoCount int64
@@ -227,10 +227,10 @@ func Db_createOneItem(userid int, content string) bool {
 
 // 根据userid查找某个用户所有对应事项记录
 func Db_findItems(userid int) []Items {
-	db, err = gorm.Open(mysql.Open(dsn))
-	if err != nil {
-		panic(err)
-	}
+	// db, err = gorm.Open(mysql.Open(dsn))
+	// if err != nil {
+	// 	panic(err)
+	// }
 	var tempItems []Items
 	db.Where(&Items{UserId: userid}).Order("create_time desc").Find(&tempItems) // 也可以使用db.Where("UserId = ?", userId).Find(&items)
 	fmt.Println("查找执行完毕")
@@ -242,10 +242,10 @@ func Db_findItems(userid int) []Items {
 
 // 修改某事项的工作内容，同时更新其修改（创建）时间
 func Db_changeItemContent(id int, newContent string) bool {
-	db, err = gorm.Open(mysql.Open(dsn))
-	if err != nil {
-		panic(err)
-	}
+	// db, err = gorm.Open(mysql.Open(dsn))
+	// if err != nil {
+	// 	panic(err)
+	// }
 	tempItem := Items{Id: id}
 	myUpdates := map[string]interface{}{
 		"Content":    newContent,
@@ -259,10 +259,10 @@ func Db_changeItemContent(id int, newContent string) bool {
 
 // 根据事项id删除某事项
 func Db_deleteItem(id int) bool {
-	db, err = gorm.Open(mysql.Open(dsn))
-	if err != nil {
-		panic(err)
-	}
+	// db, err = gorm.Open(mysql.Open(dsn))
+	// if err != nil {
+	// 	panic(err)
+	// }
 	var tempItem Items
 	db.Where(&Items{Id: id}).Find(&tempItem)
 	this_err := db.Delete(&tempItem).Error
@@ -271,10 +271,10 @@ func Db_deleteItem(id int) bool {
 
 // 根据事项id完成某事项
 func Db_changeItemState(id int) bool {
-	db, err = gorm.Open(mysql.Open(dsn))
-	if err != nil {
-		panic(err)
-	}
+	// db, err = gorm.Open(mysql.Open(dsn))
+	// if err != nil {
+	// 	panic(err)
+	// }
 	var resItem Items
 	tempItem := Items{Id: id}
 	//获取原本完成状态
@@ -291,14 +291,22 @@ func Db_changeItemState(id int) bool {
 	return this_err == nil
 }
 
+// 根据关键字查询事项包含的事项
+func Db_findContentInclude(userid int, fil string) []Items {
+	var result []Items
+	filter := "%" + fil + "%"
+	db.Where("user_id = ? and Content like ?", userid, filter).Order("create_time desc").Find(&result)
+	return result
+}
+
 //==================================================================================================
 
 // 函数：用于连接查询两个数据表，显示用户及其对应的事项记录
 func Db_findUserItems() []Result {
-	db, err = gorm.Open(mysql.Open(dsn))
-	if err != nil {
-		panic(err)
-	}
+	// db, err = gorm.Open(mysql.Open(dsn))
+	// if err != nil {
+	// 	panic(err)
+	// }
 	var results []Result
 	fmt.Println("调用lkz查询...")
 	db.Table("users").
@@ -313,10 +321,10 @@ func Db_findUserItems() []Result {
 // 网盘相关函数====================================================================
 // 根据user_id和文件名将文件信息存放在PanFile表中
 func Db_storeFiles(user_id int, file_name string, file_site string) string {
-	db, err = gorm.Open(mysql.Open(dsn))
-	if err != nil {
-		panic(err)
-	}
+	// db, err = gorm.Open(mysql.Open(dsn))
+	// if err != nil {
+	// 	panic(err)
+	// }
 	//先查询数据库中有无同名文件，若有则直接修改其创建时间
 	var check []PanFile
 	db.Where(&PanFile{FileName: file_name}).Find(&check)
@@ -335,10 +343,10 @@ func Db_storeFiles(user_id int, file_name string, file_site string) string {
 
 // 根据user_id返回用户的文件信息
 func Db_findFiles(userid int) []PanFile {
-	db, err = gorm.Open(mysql.Open(dsn))
-	if err != nil {
-		panic(err)
-	}
+	// db, err = gorm.Open(mysql.Open(dsn))
+	// if err != nil {
+	// 	panic(err)
+	// }
 	var results []PanFile
 	db.Where(&PanFile{UserId: userid}).Find(&results)
 	return results
@@ -346,10 +354,10 @@ func Db_findFiles(userid int) []PanFile {
 
 // 根据userid和file_id返回对应文件的存放目录及文件名
 func Db_getFileInfo(userid int, file_id int) PanFile {
-	db, err = gorm.Open(mysql.Open(dsn))
-	if err != nil {
-		panic(err)
-	}
+	// db, err = gorm.Open(mysql.Open(dsn))
+	// if err != nil {
+	// 	panic(err)
+	// }
 	var result PanFile
 	db.Where(&PanFile{UserId: userid, Id: file_id}).Find(&result)
 	return result
@@ -357,10 +365,10 @@ func Db_getFileInfo(userid int, file_id int) PanFile {
 
 // 根据userid和file_id删除一条文件信息
 func Db_deleteFileInfo(userid int, file_id int) (bool, PanFile) {
-	db, err = gorm.Open(mysql.Open(dsn))
-	if err != nil {
-		panic(err)
-	}
+	// db, err = gorm.Open(mysql.Open(dsn))
+	// if err != nil {
+	// 	panic(err)
+	// }
 
 	var temp PanFile
 	db.Where(&PanFile{Id: file_id, UserId: userid}).Find(&temp)
