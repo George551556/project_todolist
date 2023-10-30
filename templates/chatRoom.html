@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="../static/logo.ico" type="image/x-icon">
     <title>Document</title>
     <style>
         .add-item-btn {
@@ -65,6 +66,16 @@
             font-size: 18px;
             border-radius: 8px;
         }
+        .btn_reConnect{
+            margin-left: 5px;
+            font-size: 24px;
+            border-radius: 5px;
+            background-color: #ff6600;
+            visibility: hidden;
+        }
+        .btn_reConnect:hover{
+            background-color: #74370f;
+        }
         @keyframes slideIn {
             0% {
                 top: -100px;
@@ -95,6 +106,7 @@
     <button id="conn_cancel" class="add-item-btn">断开连接</button>
     <hr>
     <b>收到消息</b>
+    <button id="btn_reConnect" class="btn_reConnect">重新连接</button>
     <P id="showNums"></P>
     <div id="outer"></div><hr>
     <input id="input_msg">
@@ -110,6 +122,7 @@
     <script>
         const goback = document.getElementById("goback");
         const conn_cancel = document.getElementById("conn_cancel");
+        const btn_reConnect = document.getElementById("btn_reConnect");
         const showNums = document.getElementById("showNums");
         const outer = document.getElementById("outer");
         const input_msg = document.getElementById("input_msg");
@@ -117,7 +130,6 @@
         const send = document.getElementById("send");
         const exp_container = document.getElementById("exp_container");
         const userid = localStorage.getItem('userid');
-
         const Ip_Port = "127.0.0.1:8000";
 
         //初始化一些东西
@@ -141,6 +153,13 @@
         socket.onopen = (event)=>{
             console.log("连接成功");
         }
+        socket.onclose = (event)=>{
+            console.log("连接断开");
+            //在消息框中添加红色信息提示
+            addMessageAlert("连接已断开");
+            btn_reConnect.style.visibility = "visible";
+        }
+
         socket.onmessage = (event)=>{
             var raw_msg = event.data;
             console.log("接收一个消息:", raw_msg);
@@ -241,13 +260,18 @@
             }
         })
 
+        //返回首页
+        goback.addEventListener("click", ()=>{
+            window.location.href = "/control/tousermainpage";
+        })
+        //断开连接
         conn_cancel.addEventListener("click", ()=>{
             socket.close();
         })
-
-        goback.addEventListener("click", ()=>{
-            //返回首页
-            window.location.href = "/control/tousermainpage";
+        //重新连接
+        btn_reConnect.addEventListener("click", ()=>{
+            //进行虚假的重新连接：保存聊天记录ul+刷新页面
+            location.reload();
         })
 
         //显示表情框
@@ -278,7 +302,24 @@
                 //添加到大div中
                 exp_container.appendChild(tempButton);
             });
+        }
 
+        //函数：在消息框中添加系统提示
+        function addMessageAlert(msg){
+            const newLi = document.createElement("li");
+            const newP = document.createElement("p");
+            newLi.style.overflow = "hidden";
+            newP.textContent = msg;
+            newP.style.color = "red";
+            newP.style.fontSize = "24px";
+            newP.style.display = "flex"
+            newP.style.alignItems = "center";
+
+            newLi.appendChild(newP);
+            ul.appendChild(newLi);
+            outer.innerHTML = "";
+            outer.appendChild(ul);
+            ul.scrollTop = ul.scrollHeight;
         }
 
         // 函数:产生一个临时的提示信息

@@ -3,6 +3,7 @@
 <head>
   <title>TodoList</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="../static/logo.ico" type="image/x-icon">
   <style>
     /* CSS样式 */
     .todo-item {
@@ -464,7 +465,7 @@
     document.onkeydown = (ev) =>{
       ev =ev || window.event;
       if (ev.keyCode === 13){
-        if(content_key.focus){
+        if(document.activeElement === content_key){
           //如果此时焦点在筛选框上那么回车直接点击查询
           content_key_submit.click();
         }

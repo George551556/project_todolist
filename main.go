@@ -29,7 +29,7 @@ func main() {
 	r := gin.Default()
 	//加载模板目录下模板文件
 	r.LoadHTMLGlob("templates/*")
-	r.StaticFile("/static/file2", "static/cxk.png")
+	r.Static("static", "static/")
 	r.Static("express", "express/")
 	utils.Db_makeTable() //初始化数据库连接选项
 
