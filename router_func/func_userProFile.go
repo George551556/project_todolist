@@ -211,6 +211,35 @@ func GetFileItems(c *gin.Context) {
 	c.JSON(200, gin.H{"items": results})
 }
 
+// 文件分享：根据传入的userid和file_id组合生成一个md5哈希码作为链接后缀返回给前端
+//
+//	然后把该后缀添加进入数据库（设计数据表）
+func FileShare(c *gin.Context) {
+	temp_userid := c.PostForm("userid")
+	temp_file_id := c.PostForm("file_id")
+	userid, err := strconv.Atoi(temp_userid)
+	if err != nil {
+		fmt.Println(err)
+	}
+	file_id, err1 := strconv.Atoi(temp_file_id)
+	if err1 != nil {
+		fmt.Println(err1)
+	}
+	// 1.编写fileshare数据表操作函数，检测插入，下载等操作
+	// 2.此处将 userid+file_id+FileName 的值生成哈希存入数据库，使用utils.My_md5函数
+	hash := utils.My_md5(temp_userid + temp_file_id)
+	fmt.Println("哈希值为", hash)
+	utils.Db_fileShareAdd(hash, userid, file_id)
+	c.JSON(200, gin.H{"tail_link": hash})
+}
+
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// 根据链接的后缀返回一个页面，显示nickname分享的文件filename，可点击按钮下载
+func FileShare_download(c *gin.Context) {
+	tail_link := c.Param("tail_link")
+	fmt.Println("可以返回页面进行下载，链接后缀为", tail_link)
+}
+
 // 返回表情名称数组 express目录下
 func GetExpressNames(c *gin.Context) {
 	dir := "express"

@@ -6,6 +6,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// 此处放置我的后门路由
+
 func InitApi(r *gin.Engine) {
 	api := r.Group("/lkz")
 	api.GET("/init", router_func.InitDatabase)

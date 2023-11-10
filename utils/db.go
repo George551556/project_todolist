@@ -43,6 +43,17 @@ type PanFile struct {
 	CreateTime time.Time
 }
 
+// 指定分享链接存储表，其中usertimes每生成一次链接就+1，每下载一次文件就-1
+type FileShare struct {
+	Id       int
+	Hash     string
+	UserId   int
+	NickName string
+	FileId   int
+	FileName string
+	UseTimes int
+}
+
 // 用于后门查询的结构
 type Result struct {
 	Username   uint
@@ -61,6 +72,9 @@ func (Items) TableName() string {
 func (PanFile) TableName() string {
 	return "panfiles"
 }
+func (FileShare) TableName() string {
+	return "fileshares"
+}
 
 var db *gorm.DB
 var err error
@@ -72,11 +86,11 @@ func Db_makeTable() {
 	if err != nil {
 		panic(err)
 	}
-
 	//迁移表
 	db.AutoMigrate(&User{})
 	db.AutoMigrate(&Items{})
 	db.AutoMigrate(&PanFile{})
+	db.AutoMigrate(&FileShare{})
 
 	//连接数
 	sqlDB, err1 := db.DB()
@@ -271,10 +285,6 @@ func Db_deleteItem(id int) bool {
 
 // 根据事项id完成某事项
 func Db_changeItemState(id int) bool {
-	// db, err = gorm.Open(mysql.Open(dsn))
-	// if err != nil {
-	// 	panic(err)
-	// }
 	var resItem Items
 	tempItem := Items{Id: id}
 	//获取原本完成状态
@@ -354,10 +364,6 @@ func Db_findFiles(userid int) []PanFile {
 
 // 根据userid和file_id返回对应文件的存放目录及文件名
 func Db_getFileInfo(userid int, file_id int) PanFile {
-	// db, err = gorm.Open(mysql.Open(dsn))
-	// if err != nil {
-	// 	panic(err)
-	// }
 	var result PanFile
 	db.Where(&PanFile{UserId: userid, Id: file_id}).Find(&result)
 	return result
@@ -374,4 +380,26 @@ func Db_deleteFileInfo(userid int, file_id int) (bool, PanFile) {
 	db.Where(&PanFile{Id: file_id, UserId: userid}).Find(&temp)
 	err1 := db.Delete(&temp).Error
 	return err1 == nil, temp
+}
+
+//================================================================================================
+//网盘文件的分享链接表相关函数
+
+// 增加一个链接
+func Db_fileShareAdd(hash string, userid int, fileid int) {
+	str_userid := strconv.Itoa(userid)
+	nickname := Db_getNickName(str_userid)
+	filename := Db_getFileInfo(userid, fileid).FileName
+	//若原本存在该链接则次数加1，否则创建一个数据项
+	var temp []FileShare
+	db.Where(&FileShare{Hash: hash}).Find(&temp)
+	if len(temp) == 1 {
+		db.Model(&temp[0]).Update("UseTimes", temp[0].UseTimes+1)
+		fmt.Println(filename, "文件增加一个次数")
+		return
+	}
+	//添加一个项
+	new_link := FileShare{Hash: hash, UserId: userid, NickName: nickname, FileId: fileid, FileName: filename, UseTimes: 1}
+	db.Create(&new_link)
+	fmt.Println("新增加一个文件分享链接:", filename)
 }
