@@ -95,6 +95,7 @@
     function downloadFile() {
         const formData = new FormData();
         formData.append("hash", hash);
+        showNotification("正在发送请求", 2000);
 
         fetch("/userpro/fileshare/downloadfile", {
             method:'post',
@@ -112,7 +113,6 @@
                     link.download = this_filename;
                     //模拟点击
                     link.click();
-                    showNotification("正在下载", 2000);
                     //释放url对象
                     URL.revokeObjectURL(url);
                 })
