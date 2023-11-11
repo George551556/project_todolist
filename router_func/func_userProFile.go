@@ -233,11 +233,47 @@ func FileShare(c *gin.Context) {
 	c.JSON(200, gin.H{"tail_link": hash})
 }
 
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-// 根据链接的后缀返回一个页面，显示nickname分享的文件filename，可点击按钮下载
+// 根据链接的后缀返回一个页面，显示【nickname分享的文件filename】，可点击按钮下载
+func FileShare_downloadPage(c *gin.Context) {
+	hash := c.Param("tail_link")
+	//获取链接的主人信息及文件名
+	shareFileInfo := utils.Db_getLinkInfo(hash)
+	c.HTML(200, "fileDownload.html", gin.H{
+		"nickname": shareFileInfo.NickName,
+		"filename": shareFileInfo.FileName,
+		"hash":     hash,
+	})
+}
+
+// 根据链接的后缀hash，获取userid和file_id，再返回下载文件
 func FileShare_download(c *gin.Context) {
-	tail_link := c.Param("tail_link")
-	fmt.Println("可以返回页面进行下载，链接后缀为", tail_link)
+	hash := c.PostForm("hash")
+	shareFileInfo := utils.Db_getLinkInfo(hash)
+	fmt.Println(hash, "次数还有", shareFileInfo.UseTimes)
+	//判断次数是否用尽
+	if shareFileInfo.UseTimes < 1 {
+		fmt.Println(shareFileInfo.UseTimes, "次数没有了")
+		c.Status(400)
+		return
+	}
+	file_info := utils.Db_getFileInfo(shareFileInfo.UserId, shareFileInfo.FileId)
+	dir := file_info.FileSite
+	filename := file_info.FileName
+
+	fileContnt, err := ioutil.ReadFile(dir + filename)
+	if err != nil {
+		fmt.Println("文件打开失败")
+		fmt.Println(err)
+		c.Status(400)
+	}
+
+	c.Header("Content-Type", "application/octet-stream")
+	c.Header("Content-Disposition", "attachment: filename=\""+filename+"\"")
+	c.Data(200, "application/octet-stream", fileContnt)
+
+	//减少该分享文件的下载次数
+	utils.Db_reduceDownloadTime(hash)
+	fmt.Println("下载次数-1")
 }
 
 // 返回表情名称数组 express目录下

@@ -285,9 +285,11 @@
           var currentURL = window.location.href;
           var currentURL = window.location.href;
           var baseURL = currentURL.split("/")[0] + "//" + currentURL.split("/")[2];
+          baseURL = baseURL+"/userpro"+"/fileshare"+"/"+data.tail_link;
+          copyToClipboard(baseURL);
           console.log("目标URL:", baseURL);
 
-          showNotification("生成链接，已复制到剪贴板", 3000);
+          showNotification("分享链接已复制到剪贴板", 3000);
         })
       })
     }
@@ -314,6 +316,21 @@
           showNotification("删除失败", 4000);
         }
       })
+    }
+
+    //复制文本到剪贴板
+    function copyToClipboard(str){
+      // 创建一个临时的textarea元素
+      var textarea = document.createElement("textarea");
+      textarea.value = str;
+      // 将textarea元素添加到文档中
+      document.body.appendChild(textarea);
+      // 选中textarea中的文本
+      textarea.select();
+      // 将文本复制到剪贴板
+      document.execCommand("copy");
+      // 移除临时的textarea元素
+      document.body.removeChild(textarea);
     }
 
   </script>

@@ -403,3 +403,22 @@ func Db_fileShareAdd(hash string, userid int, fileid int) {
 	db.Create(&new_link)
 	fmt.Println("新增加一个文件分享链接:", filename)
 }
+
+// 通过hash后缀返回该条分享链接对应的nickname和filename
+func Db_getLinkInfo(hash string) FileShare {
+	var temp FileShare
+	db.Where(&FileShare{Hash: hash}).Find(&temp)
+	return temp
+}
+
+// 通过hash减少一次分享文件的下载次数
+func Db_reduceDownloadTime(hash string) {
+	var temp FileShare
+	db.Where(&FileShare{Hash: hash}).Find(&temp)
+	newTimes := temp.UseTimes - 1
+	err := db.Model(&FileShare{}).Where(&FileShare{Hash: hash}).Update("UseTimes", newTimes).Error
+	if err != nil {
+		fmt.Println("lkz error")
+		fmt.Println(err)
+	}
+}

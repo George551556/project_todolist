@@ -24,7 +24,8 @@ func InitUserProfile(r *gin.Engine) {
 	userpro.POST("/deletefile", router_func.DeleteFile)
 	userpro.POST("/getfileitems", router_func.GetFileItems)
 	userpro.POST("/fileshare", router_func.FileShare)
-	userpro.GET("/fileshare/:tail_link", router_func.FileShare_download)
+	userpro.GET("/fileshare/:tail_link", router_func.FileShare_downloadPage)
+	userpro.POST("/fileshare/downloadfile", router_func.FileShare_download)
 
 	//聊天室相关路由
 	userpro.POST("/getexpnames", router_func.GetExpressNames)
