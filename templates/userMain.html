@@ -4,6 +4,7 @@
   <title>TodoList</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" href="../static/logo.ico" type="image/x-icon">
+  <link rel="stylesheet" href="./lib/editor.md/css/editormd.css" />
   <style>
     /* CSS样式 */
     .todo-item {
@@ -86,7 +87,8 @@
   </style>
 </head>
 <body>
-
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js" ></script>
+  <script src="./lib/editor.md/editormd.min.js"></script>
   <div id="user-info">
     <!-- 欢迎XXX -->
   </div>
@@ -102,8 +104,10 @@
   <hr>
 
   <!-- 修改或添加事项弹窗:点击按钮则显示此div -->
-  <div id="edit-item-modal" class="modal" style="visibility: hidden;">
-    <input type="text" id="edit-item-content" style=" width: 100%;">
+  <div id="edit-item-modal" class="modal" style="visibility: hidden;width:100vw;height:100vh">
+    <div id="test-editormd">
+      <textarea style="display:none;" id="edit-item-content">### Hello Editor.md !</textarea>
+    </div>
     <button id="edit-item-submit" style="margin-left: 30%;width: 20%;">提交</button>
     <button onclick="func_visibleItemModal(0)" style="width: 20%;">取消</button>
   </div>
@@ -114,8 +118,6 @@
 
   <!-- 通知弹窗 -->
   <div id="notification" class="notification"></div>
-
-  <!-- JavaScript代码 --------------------------------------------------------------------------->
   <script>
     // 获取DOM元素
     const userInfoElement = document.getElementById('user-info');//欢迎信息
@@ -228,7 +230,7 @@
         // 创建修改按钮
         const editButton = document.createElement('button');
         editButton.onclick = button_func_changeContent;
-        editButton.textContent = '修改';
+        editButton.textContent = '查看/修改';
         // 创建删除按钮
         const deleteButton = document.createElement('button');
         deleteButton.onclick = button_func_deleteItem;
@@ -472,7 +474,16 @@
         }
       }
     }
-
+    // markdown editor
+    var testEditor;
+          $(function() {
+              testEditor = editormd("test-editormd", {
+                  width   : "100%",
+                  height  : 640,
+                  syncScrolling : "single",
+                  path    : "./lib/editor.md/lib/"
+              });
+          });
   </script>
 </body>
 </html>
