@@ -2,7 +2,9 @@ package router_func
 
 import (
 	"fmt"
+	"io/ioutil"
 	"strconv"
+	"strings"
 	"todolist/utils"
 
 	"github.com/gin-gonic/gin"
@@ -31,9 +33,13 @@ func AddItem(c *gin.Context) {
 		fmt.Println(err)
 	}
 	content := c.PostForm("content")
-	utils.Db_createOneItem(userid, content)
-	fmt.Println("添加事项:", userid, "内容：", content)
-	c.Status(200)
+	if utils.Db_createOneItem(userid, content) {
+		fmt.Println("添加事项:", userid, "内容：", content)
+		c.Status(200)
+	} else {
+		c.Status(400)
+	}
+
 }
 
 // 路由函数：根据传入的userid以及content修改用户的昵称
@@ -94,6 +100,20 @@ func ChangeState(c *gin.Context) {
 	}
 }
 
+// 路由函数：根据传入的关键字返回内容包含关键字的事项列表
+func KeyFind(c *gin.Context) {
+	temp_userid := c.PostForm("userid")
+	userid, err := strconv.Atoi(temp_userid)
+	if err != nil {
+		fmt.Println(err)
+	}
+	key := c.PostForm("key")
+	items := utils.Db_findContentInclude(userid, key)
+	c.JSON(200, gin.H{
+		"items": items,
+	})
+}
+
 // 路由函数：根据传入的文件以及用户id存储文件并存储文件信息
 func UploadFile(c *gin.Context) {
 	temp_userid := c.PostForm("userid")
@@ -140,8 +160,18 @@ func DownloadFile(c *gin.Context) {
 	dir := file_info.FileSite
 	filename := file_info.FileName
 
-	// c.Header("Content-Disposition", "attachment: filename="+filename)
-	c.File(dir + filename)
+	fileContent, err1 := ioutil.ReadFile(dir + filename)
+	if err1 != nil {
+		fmt.Println("文件打开失败")
+		fmt.Println(err)
+		return
+	}
+
+	c.Header("Content-Type", "application/octet-stream")
+	c.Header("Content-Disposition", "attachment: filename=\""+filename+"\"")
+	c.Data(200, "application/octet-stream", fileContent)
+	// c.File(dir + filename)
+
 }
 
 // 路由函数：根据传入的userid和file_id删除文件信息和文件
@@ -179,4 +209,88 @@ func GetFileItems(c *gin.Context) {
 	}
 	results := utils.Db_findFiles(userid)
 	c.JSON(200, gin.H{"items": results})
+}
+
+// 文件分享：根据传入的userid和file_id组合生成一个md5哈希码作为链接后缀返回给前端
+//
+//	然后把该后缀添加进入数据库（设计数据表）
+func FileShare(c *gin.Context) {
+	temp_userid := c.PostForm("userid")
+	temp_file_id := c.PostForm("file_id")
+	userid, err := strconv.Atoi(temp_userid)
+	if err != nil {
+		fmt.Println(err)
+	}
+	file_id, err1 := strconv.Atoi(temp_file_id)
+	if err1 != nil {
+		fmt.Println(err1)
+	}
+	// 1.编写fileshare数据表操作函数，检测插入，下载等操作
+	// 2.此处将 userid+file_id+FileName 的值生成哈希存入数据库，使用utils.My_md5函数
+	hash := utils.My_md5(temp_userid + temp_file_id)
+	fmt.Println("哈希值为", hash)
+	utils.Db_fileShareAdd(hash, userid, file_id)
+	c.JSON(200, gin.H{"tail_link": hash})
+}
+
+// 根据链接的后缀返回一个页面，显示【nickname分享的文件filename】，可点击按钮下载
+func FileShare_downloadPage(c *gin.Context) {
+	hash := c.Param("tail_link")
+	//获取链接的主人信息及文件名
+	shareFileInfo := utils.Db_getLinkInfo(hash)
+	c.HTML(200, "fileDownload.html", gin.H{
+		"nickname": shareFileInfo.NickName,
+		"filename": shareFileInfo.FileName,
+		"hash":     hash,
+	})
+}
+
+// 根据链接的后缀hash，获取userid和file_id，再返回下载文件
+func FileShare_download(c *gin.Context) {
+	hash := c.PostForm("hash")
+	shareFileInfo := utils.Db_getLinkInfo(hash)
+	fmt.Println(hash, "次数还有", shareFileInfo.UseTimes)
+	//判断次数是否用尽
+	if shareFileInfo.UseTimes < 1 {
+		fmt.Println(shareFileInfo.UseTimes, "次数没有了")
+		c.Status(400)
+		return
+	}
+	file_info := utils.Db_getFileInfo(shareFileInfo.UserId, shareFileInfo.FileId)
+	dir := file_info.FileSite
+	filename := file_info.FileName
+
+	fileContnt, err := ioutil.ReadFile(dir + filename)
+	if err != nil {
+		fmt.Println("文件打开失败")
+		fmt.Println(err)
+		c.Status(400)
+	}
+
+	c.Header("Content-Type", "application/octet-stream")
+	c.Header("Content-Disposition", "attachment: filename=\""+filename+"\"")
+	c.Data(200, "application/octet-stream", fileContnt)
+
+	//减少该分享文件的下载次数
+	utils.Db_reduceDownloadTime(hash)
+	fmt.Println("下载次数-1")
+}
+
+// 返回表情名称数组 express目录下
+func GetExpressNames(c *gin.Context) {
+	dir := "express"
+	files, err := ioutil.ReadDir(dir)
+	if err != nil {
+		panic(err)
+	}
+	front_names := make([]string, 0) //存储表情的名字
+	for _, file := range files {
+		if file.IsDir() {
+			continue
+		}
+		front_names = append(front_names, strings.Split(file.Name(), ".")[0])
+	}
+	fmt.Println("表情：", front_names)
+
+	c.JSON(200, gin.H{"names": front_names})
 }

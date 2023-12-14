@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>文件分享页面</title>
+  <style>
+    body {
+      background-color: #f2f2f2;
+    }
+    
+    .container {
+      width: 400px;
+      margin: 100px auto;
+      padding: 20px;
+      background-color: #fff;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+      border-radius: 45px 0 45px 0;
+    }
+    
+    .message {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    
+    .download-btn {
+      display: block;
+      width: 200px;
+      margin: 0 auto;
+      padding: 10px;
+      text-align: center;
+      background-color: #4CAF50;
+      color: #fff;
+      text-decoration: none;
+      border-radius: 5px;
+    }
+    .download-btn:hover {
+      background-color: #45a049;
+    }
+    .notification {
+      position: fixed;
+      top: 8%;
+      left: 50%;
+      transform: translate(-50%, -60%);
+      background-color: #70b09c;
+      padding: 10px 20px;
+      border-radius: 30px;
+      box-shadow: 0 10px 8px rgba(26, 24, 35, 0.4);
+      visibility: hidden;
+    }
+    @keyframes slideIn {
+      0% {
+        top: -100px;
+      }
+      50% {
+        top: 50px;
+      }
+      100% {
+        top: 8%;
+      }
+    }
+
+    @keyframes slideOut {
+      0% {
+        top: 8%;
+      }
+      50% {
+        top: 50px;
+      }
+      100% {
+        top: -100px;
+      }
+    }
+  </style>
+</head>
+<body>
+    <p id="hash_lkz" style="visibility: hidden; position: fixed;">{{.hash}}</p>
+    <div class="container">
+        <div class="message">
+        <p>用户<b>{{.nickname}}</b>分享给你的文件</p>
+        <p id="filename_show" style="color: crimson;">{{.filename}}</p>
+        </div>
+        <a href="#" class="download-btn" onclick="downloadFile()">下载</a>
+    </div>
+
+    <!-- 通知弹窗 -->
+    <div id="notification" class="notification"></div>
+
+  <script>
+    const filename_show = document.getElementById('filename_show');
+    const hash_lkz = document.getElementById('hash_lkz');
+    var this_filename = filename_show.textContent;
+    var hash = hash_lkz.textContent;
+
+
+
+    // 下载按钮的点击事件处理函数
+    function downloadFile() {
+        const formData = new FormData();
+        formData.append("hash", hash);
+        showNotification("正在发送请求", 2000);
+
+        fetch("/userpro/fileshare/downloadfile", {
+            method:'post',
+            body:formData,
+        })
+        .then(response=>{
+            if (response.ok){
+                const filename = response.headers.get('filename');
+                return response.blob().then(blob =>{
+                    //创建一个URL对象
+                    const url = URL.createObjectURL(blob);
+                    //创建a标签并设置下载属性
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = this_filename;
+                    //模拟点击
+                    link.click();
+                    //释放url对象
+                    URL.revokeObjectURL(url);
+                })
+            }
+            else{
+                showNotification("下载失败，次数用尽...", 3000);
+            }
+        })
+    }
+
+
+    // 函数:产生一个临时的提示信息
+    function showNotification(message, duration) {
+        const notification = document.getElementById('notification');
+        notification.textContent = message;
+        notification.style.visibility = 'visible';
+        notification.style.animation = 'slideIn 0.5s ease-in-out forwards';
+        setTimeout(()=>{
+            notification.style.animation = 'slideOut 0.5s ease-in-out forwards';
+            setTimeout(() => {
+                notification.style.visibility = 'hidden';
+                notification.style.animation = '';
+            }, 1000);
+        }, duration);
+    }
+  </script>
+</body>
+</html>

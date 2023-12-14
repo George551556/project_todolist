@@ -13,4 +13,5 @@ func InitControl(r *gin.Engine) {
 	control.GET("/tousermainpage", router_func.Tousermainpage)
 	control.GET("/totestpage", router_func.Totestpage)
 	control.GET("/touserpanpage", router_func.ToUserPan)
+	control.GET("/tochatpage", router_func.ToChanPage)
 }

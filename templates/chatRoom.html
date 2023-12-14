@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="../static/logo.ico" type="image/x-icon">
+    <title>Document</title>
+    <style>
+        .add-item-btn {
+            padding: 5px 10px;
+            font-size: 12px;
+            background-color: #70b09c;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .add-item-btn:hover {
+            background-color: #5a917a;
+        }
+        #outer{
+            width: 80%;
+            padding: 5px 6px 35px 6px;
+            border: 3px solid #4079a9;
+            position: relative;
+            margin: 0 auto;
+        }
+        ul {
+            height: 360px;
+            overflow-y: auto;
+            border: 1px dashed #c5c7ca;
+        }
+        li {
+            list-style: none;
+            overflow: hidden;
+            margin: 10px 10px;
+        }
+        span{
+            margin: 2px 2px;
+        }
+        .notification {
+            position: fixed;
+            top: 8%;
+            left: 50%;
+            transform: translate(-50%, -60%);
+            background-color: #70b09c;
+            padding: 10px 20px;
+            border-radius: 30px;
+            box-shadow: 0 10px 8px rgba(26, 24, 35, 0.4);
+            visibility: hidden;
+        }
+        .exp_container{
+            background: linear-gradient(to bottom, #ffcc00, #ff6600);
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            flex-direction: column;
+            visibility: hidden;
+            border-radius: 8px;
+            box-shadow: 8px 8px 5px grey;
+        }
+        .btn_exp{
+            margin: 5px;
+            font-size: 18px;
+            border-radius: 8px;
+        }
+        .btn_reConnect{
+            margin-left: 5px;
+            font-size: 24px;
+            border-radius: 5px;
+            background-color: #ff6600;
+            visibility: hidden;
+        }
+        .btn_reConnect:hover{
+            background-color: #74370f;
+        }
+        @keyframes slideIn {
+            0% {
+                top: -100px;
+            }
+            50% {
+                top: 50px;
+            }
+            100% {
+                top: 8%;
+            }
+        }
+        @keyframes slideOut {
+            0% {
+                top: 8%;
+            }
+            50% {
+                top: 50px;
+            }
+            100% {
+                top: -100px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h2>hello 聊天室</h2>
+    <button id="goback" class="add-item-btn">返回首页</button>
+    <button id="conn_cancel" class="add-item-btn">断开连接</button>
+    <hr>
+    <b>收到消息</b>
+    <button id="btn_reConnect" class="btn_reConnect">重新连接</button>
+    <P id="showNums"></P>
+    <div id="outer"></div><hr>
+    <input id="input_msg">
+    <button id="express">点击更换表情</button>
+    <button id="send">发送</button>
+    <!-- 通知弹窗 -->
+    <div id="notification" class="notification"></div>
+    <!-- 表情弹窗 -->
+    <div id="exp_container" class="exp_container">
+    </div>
+
+
+    <script>
+        const goback = document.getElementById("goback");
+        const conn_cancel = document.getElementById("conn_cancel");
+        const btn_reConnect = document.getElementById("btn_reConnect");
+        const showNums = document.getElementById("showNums");
+        const outer = document.getElementById("outer");
+        const input_msg = document.getElementById("input_msg");
+        const express = document.getElementById("express");
+        const send = document.getElementById("send");
+        const exp_container = document.getElementById("exp_container");
+        const userid = localStorage.getItem('userid');
+        const Ip_Port = "8.130.15.145:80";
+
+        //初始化一些东西
+        var address = "ws://"+Ip_Port+"/ws";
+        var socket = new WebSocket(address);
+        const ul = document.createElement("ul");
+        var peopleNum = 0;
+
+        //获取表情名称数组
+        fetch("/userpro/getexpnames", {
+            method:"POST",
+        }).then(response=>{
+            response.json().then(data=>{
+                // console.log("表情：", data.names);
+                //根据数组data.names渲染表情按钮
+                render_exp_button(data.names);
+            })
+        })
+
+        //函数编写
+        socket.onopen = (event)=>{
+            console.log("连接成功");
+        }
+        socket.onclose = (event)=>{
+            console.log("连接断开");
+            //在消息框中添加红色信息提示
+            addMessageAlert("连接已断开");
+            btn_reConnect.style.visibility = "visible";
+        }
+
+        socket.onmessage = (event)=>{
+            var raw_msg = event.data;
+            console.log("接收一个消息:", raw_msg);
+
+            //析取消息数据
+            var msg_type = raw_msg.split(",")[0];
+            var msg_userid = raw_msg.split(",")[1];
+            var msg_nickName = raw_msg.split(",")[2];
+            var msg_content = raw_msg.split(",")[3];
+
+            //处理消息
+            if (msg_type === "0"){
+                //普通消息
+                const newLi = document.createElement("li");
+                newLi.style.overflow = "hidden";
+                const newSpan_NickName = document.createElement("span");
+                const br = document.createElement("br");
+                const newSpan_Content = document.createElement("span");
+                // newSpan.innerHTML = msg_nickName+":"+msg_content;
+                newSpan_NickName.innerText = msg_nickName;
+                newSpan_Content.innerText = msg_content;
+
+                //设置左右格式
+                if (msg_userid === userid){
+                    console.log("设置格式：",msg_userid, userid);
+                    newSpan_NickName.style.float = "right";
+                    newSpan_Content.style.float = "right";
+                    newSpan_Content.style.color = "white";
+                    newSpan_Content.style.backgroundColor = "green";
+
+                    //先添加昵称再添加内容
+                    newLi.appendChild(newSpan_NickName);
+                    newLi.appendChild(br);
+                    newLi.appendChild(newSpan_Content);
+                }
+                else{
+                    //先添加内容，再添加昵称
+                    newLi.appendChild(newSpan_NickName);
+                    newLi.appendChild(br);
+                    newLi.appendChild(newSpan_Content);
+                    newSpan_Content.style.backgroundColor = "#F0F0F0";                    
+                }
+                // newSpan.style.width = "60%";
+                
+                ul.appendChild(newLi);
+                outer.innerHTML = "";
+                outer.appendChild(ul);
+            }
+            else if(msg_type === "1"){
+                //人数改变
+                var nextNum = parseInt(msg_userid);
+                console.log("人数改变：", peopleNum, nextNum);
+                if (nextNum>peopleNum){
+                    showNotification("用户进入", 3000);
+                }
+                else if (nextNum<peopleNum){
+                    showNotification("用户退出", 3000);
+                }
+                showNums.textContent = "当前在线人数: "+msg_userid;
+                peopleNum = nextNum;
+            }
+            else if(msg_type === "2"){
+                //表情
+                const temp_li = document.createElement("li");
+                const new_p = document.createElement("p");
+                const img = document.createElement("img");
+                new_p.textContent = msg_nickName;
+                img.src = "http://" + Ip_Port + "/express/"+msg_content;
+
+                //设置左右格式
+                if (msg_userid === userid){
+                    temp_li.style.overflow = "hidden";
+                    new_p.style.float = "right";
+                    img.style.float = "right";
+                }
+
+                temp_li.appendChild(new_p);
+                temp_li.appendChild(img);
+                
+                ul.appendChild(temp_li);
+                outer.innerHTML = "";
+                outer.appendChild(ul)
+            }
+            ul.scrollTop = ul.scrollHeight;
+        }
+        //点击发送消息
+        send.addEventListener("click", ()=>{
+            if (input_msg.value === ""){
+                alert("请输入消息");
+            }
+            else if(userid === null){
+                alert("系统出错");
+            }
+            else{
+                const new_msg = userid+"," + "0" + "," + input_msg.value;//0，表示信息类型为正常信息
+                socket.send(new_msg);
+                input_msg.value = "";
+            }
+        })
+
+        //返回首页
+        goback.addEventListener("click", ()=>{
+            window.location.href = "/control/tousermainpage";
+        })
+        //断开连接
+        conn_cancel.addEventListener("click", ()=>{
+            socket.close();
+        })
+        //重新连接
+        btn_reConnect.addEventListener("click", ()=>{
+            //进行虚假的重新连接：保存聊天记录ul+刷新页面
+            location.reload();
+        })
+
+        //显示表情框
+        express.addEventListener("click", ()=>{
+            exp_container.style.visibility = "visible";
+        })
+
+        //回车发送消息
+        document.onkeydown = function (ev) {
+            ev = ev || window.event;
+            if (ev.keyCode === 13) {
+                send.click();
+            }
+        };
+
+        //函数：渲染表情按钮
+        function render_exp_button(items){
+            items.forEach(item => {
+                var tempButton = document.createElement("button");
+                tempButton.textContent = item;
+                tempButton.classList.add("btn_exp");
+                tempButton.onclick = ()=>{
+                    const new_msg = userid + "," + "1" + "," + item;
+                    socket.send(new_msg);
+                    exp_container.style.visibility = "hidden";
+                }
+
+                //添加到大div中
+                exp_container.appendChild(tempButton);
+            });
+        }
+
+        //函数：在消息框中添加系统提示
+        function addMessageAlert(msg){
+            const newLi = document.createElement("li");
+            const newP = document.createElement("p");
+            newLi.style.overflow = "hidden";
+            newP.textContent = msg;
+            newP.style.color = "red";
+            newP.style.fontSize = "24px";
+            newP.style.display = "flex"
+            newP.style.alignItems = "center";
+
+            newLi.appendChild(newP);
+            ul.appendChild(newLi);
+            outer.innerHTML = "";
+            outer.appendChild(ul);
+            ul.scrollTop = ul.scrollHeight;
+        }
+
+        // 函数:产生一个临时的提示信息
+        function showNotification(message, duration) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.style.visibility = 'visible';
+            notification.style.animation = 'slideIn 0.5s ease-in-out forwards';
+            setTimeout(()=>{
+                notification.style.animation = 'slideOut 0.5s ease-in-out forwards';
+                setTimeout(() => {
+                    notification.style.visibility = 'hidden';
+                    notification.style.animation = '';
+                }, 1000);
+            }, duration);
+        }
+    
+
+    </script>
+</body>
+</html>

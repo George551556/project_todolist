@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="../static/logo.ico" type="image/x-icon">
+    <title>我的网盘</title>
+    <style>
+    .notification {
+      position: fixed;
+      top: 8%;
+      left: 50%;
+      transform: translate(-50%, -60%);
+      background-color: #70b09c;
+      padding: 10px 20px;
+      border-radius: 30px;
+      box-shadow: 0 10px 8px rgba(26, 24, 35, 0.4);
+      visibility: hidden;
+    }
+    .modal {
+      position: fixed;
+      top: 70%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: rgb(125,182,191);
+      padding: 0px;
+      border-radius: 100px;
+      box-shadow: 0 10px 8px rgba(0, 0, 0, 0.4);
+      width: 40%;
+      height: 10%;
+      display: flex;
+      justify-content: space-between;
+      visibility:hidden;
+      /* height: fit-content; */
+    }
+    #btn-download{
+      width: 37%; 
+      padding: 1px; 
+      border-radius: 100px 0 0 100px;
+      background-color: rgb(125,182,191);
+    }
+    #btn-delete{
+      width: 37%; 
+      padding: 1px; 
+      border-radius: 0 100px 100px 0;
+    }
+    #btn-share{
+      width: 26%;
+      background-color: darkorange;
+      border: 2px solid black;
+    }
+    button:hover {
+      background-color: gray;
+      color: white;
+    }
+
+    @keyframes slideIn {
+      0% {
+        top: -100px;
+      }
+      50% {
+        top: 50px;
+      }
+      100% {
+        top: 8%;
+      }
+    }
+
+    @keyframes slideOut {
+      0% {
+        top: 8%;
+      }
+      50% {
+        top: 50px;
+      }
+      100% {
+        top: -100px;
+      }
+    }
+    </style>
+</head>
+<body>
+  <h3>我的网盘页面</h3>
+  <p>每个用户只能保存10个文件</p>
+  <p>点击对应的文件项即可显示操作按钮</p>
+  <p id="hello"></p>
+  <input type="file" id="input_file">
+  <input type="submit" id="file_submit">
+  <hr>
+  <!-- 文件信息列表 -->
+  <div id="file-list"></div>
+
+  <!-- 操作弹窗 -->
+  <div id="edit-modal" class="modal">
+    <button id="btn-download">下载</button>
+    <button id="btn-share">分享</button>
+    <button id="btn-delete">删除</button>
+  </div>
+
+  <!-- 通知弹窗 -->
+  <div id="notification" class="notification"></div>
+
+  <script>
+    const hello = document.getElementById('hello');
+    const userid = localStorage.getItem('userid');//用户隐藏ID
+    const input_file = document.getElementById('input_file');
+    const file_submit = document.getElementById('file_submit');
+    const file_list = document.getElementById('file-list');//文件信息列表
+    const edit_modal = document.getElementById('edit-modal');//操作框
+    const btn_download = document.getElementById('btn-download');//操作框：下载
+    const btn_delete = document.getElementById('btn-delete');//操作框：删除
+    const btn_share = document.getElementById('btn-share');//操作框：分享
+    
+    //页面基础信息设置
+    // hello.textContent = "欢迎用户" + userid;
+    func_GetFileItems();
+
+    //函数设置============================================================================
+    //提交按钮函数绑定
+    file_submit.addEventListener("click", ()=>{
+        const formData = new FormData();
+        formData.append('userid', localStorage.getItem('userid'));
+        const file = input_file.files[0];
+        formData.append('file', file);
+
+        fetch("/userpro/uploadfile", {
+            method:'POST',
+            body:formData,
+        })
+        .then(response => response.json())
+        .then(data => {
+          if(data.status === 200){
+            func_GetFileItems();
+            console.log("上传成功");
+            showNotification(data.msg, 3000);
+          }
+          else if (data.status === 400){
+            showNotification(data.msg, 3000);
+          }
+          else{
+            showNotification("上传失败", 4000);
+          }
+        })
+    })
+
+    //函数：获取文件列表信息并调用render进行刷新
+    function func_GetFileItems(){
+      const formData = new FormData();
+      formData.append('userid', localStorage.getItem('userid'));
+      fetch("/userpro/getfileitems", {
+        method:'POST',
+        body:formData,
+      })
+      .then(response => response.json())
+      .then(data => {
+        renderFileList(data.items);
+      })
+    }
+
+    //根据信息渲染刷新文件列表函数
+    function renderFileList(items){
+      file_list.innerHTML = "";
+      items.forEach(item => {
+        // 内部包含一个隐藏file_id， image文件图标， file_name文件名
+        //创建一个item容器
+        const fileElement = document.createElement('div');
+        fileElement.classList.add('file-item');
+        fileElement.onclick = ()=>{
+          // alert(item.Id+item.FileName)
+          if(edit_modal.style.visibility === "hidden"){
+            //显示出操作框并设置函数
+            edit_modal.style.visibility = "visible";
+            btn_download.onclick = () => {
+              func_download(item.Id, item.FileName);
+            }
+            btn_share.onclick = () => {
+              func_share(item.Id);
+            }
+            btn_delete.onclick = () => {
+              func_delete(item.Id)
+            }
+          }
+          else{
+            edit_modal.style.visibility = "hidden";
+          }
+        }
+        //设置item样式属性
+        fileElement.style.backgroundColor = 'lightblue';
+        fileElement.style.border = '2px solid gray';
+        // fileElement.style.height = '50px';
+        // fileElement.style.width = '50px';
+        //添加隐藏file_id
+        const file_id = document.createElement('span');
+        file_id.textContent = item.Id;
+        file_id.style.visibility = "hidden";
+        file_id.style.position = "fixed";
+        //添加image文件图标
+        const img = document.createElement('img');
+        img.src = "/static/cxk.png";
+        img.style.width = "50px";
+        img.style.height = "50px";
+        //添加文件名
+        const file_name = document.createElement('p');
+        file_name.textContent = item.FileName;
+        //添加修改时间
+        const create_time = document.createElement('text');
+        create_time.textContent = item.CreateTime.slice(0, 16);
+
+        //将以上元素加入父div中
+        fileElement.appendChild(file_id);
+        fileElement.appendChild(img)
+        fileElement.appendChild(file_name);
+        fileElement.appendChild(create_time);
+        //将总元素加入列表中
+        file_list.appendChild(fileElement);
+      });
+    }
+
+    // 函数:产生一个临时的提示信息
+    function showNotification(message, duration) {
+        const notification = document.getElementById('notification');
+        notification.textContent = message;
+        notification.style.visibility = 'visible';
+        notification.style.animation = 'slideIn 0.5s ease-in-out forwards';
+        setTimeout(()=>{
+            notification.style.animation = 'slideOut 0.5s ease-in-out forwards';
+            setTimeout(() => {
+                notification.style.visibility = 'hidden';
+                notification.style.animation = '';
+            }, 1000);
+        }, duration);
+    }
+
+    //根据用户id和文件id请求下载文件
+    function func_download(file_id, file_name){
+      const formData = new FormData();
+      formData.append('userid', localStorage.getItem('userid'));
+      formData.append('file_id', file_id);
+
+      fetch("/userpro/downloadfile", {
+        method:'POST',
+        body:formData,
+      })
+      .then(response=> {
+        if(response.ok){
+          //隐藏操作框
+          edit_modal.style.visibility = "hidden";
+
+          const filename = response.headers.get('filename');
+          return response.blob().then(blob => {
+            //创建一个临时URL对象
+            const url = URL.createObjectURL(blob);
+            //创建a标签并设置下载属性
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = file_name;
+            //模拟点击
+            link.click();
+            //释放url对象
+            URL.revokeObjectURL(url);
+          })
+        }
+        else{
+          showNotification("请求失败", 3000);
+          throw new Error('请求失败');
+        }
+      })
+    }
+
+    //上传用户id和文件id创建一个分享链接，然后获取返回的hash码与url组合成链接，并复制到剪贴板。产生一个提示
+    function func_share(file_id){
+      const formData = new FormData();
+      formData.append('userid', localStorage.getItem('userid'));
+      formData.append('file_id', file_id);
+
+      fetch("/userpro/fileshare", {
+        method:'POST',
+        body:formData,
+      }).then(response =>{
+        response.json().then(data =>{
+          //隐藏操作框
+          edit_modal.style.visibility = "hidden";
+
+          console.log('后缀：', data.tail_link);
+          var currentURL = window.location.href;
+          var currentURL = window.location.href;
+          var baseURL = currentURL.split("/")[0] + "//" + currentURL.split("/")[2];
+          baseURL = baseURL+"/userpro"+"/fileshare"+"/"+data.tail_link;
+          copyToClipboard(baseURL);
+          console.log("目标URL:", baseURL);
+
+          showNotification("分享链接已复制到剪贴板", 3000);
+        })
+      })
+    }
+
+    //根据用户id和文件id请求删除文件
+    function func_delete(file_id){
+      const formData = new FormData();
+      formData.append('userid', localStorage.getItem('userid'));
+      formData.append('file_id', file_id);
+
+      fetch("/userpro/deletefile", {
+        method:'POST',
+        body:formData,
+      })
+      .then(response => {
+        if(response.status===200){
+          //隐藏操作框
+          edit_modal.style.visibility = "hidden";
+
+          showNotification("删除成功", 3000);
+          func_GetFileItems();
+        }
+        else{
+          showNotification("删除失败", 4000);
+        }
+      })
+    }
+
+    //复制文本到剪贴板
+    function copyToClipboard(str){
+      // 创建一个临时的textarea元素
+      var textarea = document.createElement("textarea");
+      textarea.value = str;
+      // 将textarea元素添加到文档中
+      document.body.appendChild(textarea);
+      // 选中textarea中的文本
+      textarea.select();
+      // 将文本复制到剪贴板
+      document.execCommand("copy");
+      // 移除临时的textarea元素
+      document.body.removeChild(textarea);
+    }
+
+  </script>
+</body>
+</html>
