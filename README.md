@@ -10,11 +10,13 @@
 
 5. 必要命令：
    go mod init [模块名] 
-   go get -u github.com/mongodb/mongo-go-driver   安装mongodb驱动
-   go get -u github.com/gin-gonic/gin
+   go get -u github.com/mongodb/mongo-go-driver   安装mongodb驱动（本项目未使用）
+   go get -u github.com/gin-gonic/gin（如果安装gin失败：[修改代理](https://blog.csdn.net/asd1358355022/article/details/128397188)） 
    
-
    最后使用 go mod tidy 整理包
+   
+   
+   
 6. 注意：添加新路由一定要在main.go中注册路由
    第一次部署项目要访问路由 /lkz/init 进行初始化数据表
 
@@ -44,3 +46,10 @@
 
 -网盘功能：界面ui需要改进，改成那种一个个方块的形式，并添加鼠标悬停效果；删除一个文件是只删除数据库中信息，并没有的目录中删除文件本体。
 
+#### linux安装go教程
+
+[ubuntu go卸载,安装以及版本升级_删除apt安装的go-CSDN博客](https://blog.csdn.net/qq_36389107/article/details/107972274#:~:text=ubuntu go卸载%2C安装以及版本升级 1 1.检查是否安装GO 2 2.卸载旧版本,(不存在可以忽略这一步) 3 3.下载新的安装包 4 4.更新 5 5.设置GOSUMDB) 
+
+注意要看好自己的是x86还是arm，我在这里出问题一起没发现。
+
+使用系统指令查看为x86-64，但是使用apt install golang-go 安装上的竟然是arm版本，所以决定选择arm版本的安装包就好了
