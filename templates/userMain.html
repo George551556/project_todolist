@@ -11,6 +11,7 @@
       align-items: center;
       justify-content: space-between;
       margin-bottom: 10px;
+      max-height: 120px;
     }
     .todo-item .actions {
       display: flex;
@@ -103,7 +104,8 @@
 
   <!-- 修改或添加事项弹窗:点击按钮则显示此div -->
   <div id="edit-item-modal" class="modal" style="visibility: hidden;">
-    <input type="text" id="edit-item-content" style=" width: 100%;">
+    <input type="text" id="edit-item-content" style=" width: 100%; visibility: hidden;">
+    <textarea id="edit-item-content1" rows="3" style="width: 100%;"></textarea>
     <button id="edit-item-submit" style="margin-left: 30%;width: 20%;">提交</button>
     <button onclick="func_visibleItemModal(0)" style="width: 20%;">取消</button>
   </div>
@@ -130,6 +132,7 @@
     const addItemSubmitBtn = document.getElementById('add-item-submit');
     const editItemModal = document.getElementById('edit-item-modal');//浮动编辑窗口
     const editItemContentInput = document.getElementById('edit-item-content');//浮动编辑内容
+    const test_edit_input = document.getElementById('edit-item-content1');
     const editItemSubmitBtn = document.getElementById('edit-item-submit');//浮动提交按钮
 
     // 显示用户信息和待办事项列表
@@ -260,13 +263,16 @@
         case 0:
           editItemModal.style.visibility = "hidden";
           editItemContentInput.value="";
+          test_edit_input.value = "";
           editItemContentInput.placeholder = "";
+          test_edit_input.placeholder = "";
           break;
         case 1:
           //添加事项
           editItemSubmitBtn.onclick = func_submitItem;
           editItemModal.style.visibility = "visible";
           editItemContentInput.focus();
+          test_edit_input.focus();
           break;
         case 2:
           //修改事项内容
@@ -278,6 +284,7 @@
           editItemSubmitBtn.onclick = func_changeNickname;
           editItemModal.style.visibility = "visible";
           editItemContentInput.focus();
+          test_edit_input.focus();
           break;
         case 4:
           //
@@ -292,7 +299,8 @@
       // console.log(editItemContentInput.value);
       const formData = new FormData();
       formData.append('userid', localStorage.getItem('userid'));
-      formData.append('content', editItemContentInput.value);
+      // formData.append('content', editItemContentInput.value);
+      formData.append('content', test_edit_input.value);
       fetch("/userpro/additem", {
         method:'POST',
         body:formData,
@@ -301,6 +309,7 @@
         if(response.status===200){
           console.log('添加成功');
           editItemContentInput.value = "";//清除输入框数据
+          test_edit_input.value = "";
           func_visibleItemModal(0);//关闭浮窗
           showNotification("添加成功", 3000);
           func_getItems();
@@ -314,6 +323,7 @@
     function func_changeNickname(){
       const formData = new FormData();
       let temp_content = editItemContentInput.value
+      temp_content = test_edit_input.value;
       formData.append('userid', localStorage.getItem('userid'));
       formData.append('content', temp_content);
       fetch("/userpro/changenickname", {
@@ -323,6 +333,7 @@
         if(response.status===200){
           console.log('昵称修改成功');
           editItemContentInput.value = "";
+          test_edit_input.value = "";
           func_visibleItemModal(0);
           showNotification("昵称修改成功", 3000);
           userInfoElement.textContent = "欢迎用户, "+temp_content;
@@ -347,10 +358,12 @@
 
       //调出并设置浮动框
       editItemContentInput.value = content;//设置悬浮窗内容
+      test_edit_input.value = content;
       editItemSubmitBtn.onclick = function(){
         const formData = new FormData();
         formData.append("itemId", itemId);
-        formData.append("new_content", editItemContentInput.value);
+        // formData.append("new_content", editItemContentInput.value);
+        formData.append("new_content", test_edit_input.value);
         fetch("/userpro/changeitemcontent", {
           method:'POST',
           body:formData,
@@ -368,6 +381,7 @@
       }
       editItemModal.style.visibility = "visible";
       editItemContentInput.focus();
+      test_edit_input.focus();
       //输出测试
       // console.log("按修改按钮")
       // console.log(itemId);
@@ -384,6 +398,7 @@
 
       //调出并设置浮动框
       editItemContentInput.placeholder="直接点击提交即可删除";
+      test_edit_input.placeholder = "直接点击提交即可删除";
       editItemSubmitBtn.onclick = function(){
         const formData = new FormData();
         formData.append("itemId", itemId);
@@ -420,6 +435,7 @@
 
       //调出并设置浮动框
       editItemContentInput.placeholder="直接点击提交即可完成";
+      test_edit_input.placeholder = "直接点击提交即可完成";
       editItemSubmitBtn.onclick = function(){
         const formData = new FormData();
         formData.append("itemId", itemId);
