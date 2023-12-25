@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"time"
 	"todolist/router"
 	"todolist/utils"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 )
@@ -28,6 +30,8 @@ func main() {
 
 	r := gin.Default()
 	//加载模板目录下模板文件
+	// 使用 CORS 中间件处理跨域请求
+	r.Use(cors.Default())
 	r.LoadHTMLGlob("templates/*")
 	r.Static("static", "static/")
 	r.Static("express", "express/")
@@ -40,6 +44,8 @@ func main() {
 	r.POST("/dingxiang", rRedirect)
 	r.GET("/json", rtJSON)
 	r.GET("/testdb", utils.TestDB)
+	r.GET("/str", str)
+	r.POST("strp", str_p)
 
 	r.GET("/ws", handleWebSocket)
 	go broadcastMsg()
@@ -79,6 +85,18 @@ func rRedirect(c *gin.Context) {
 	fmt.Println("表单多：", forms)
 	// fmt.Println("post信息为：", message)
 	c.HTML(200, "test.html", gin.H{"message": "message"})
+}
+
+func str(c *gin.Context){
+	current_time := time.Now()
+	thistime := current_time.Format("2006-01-02 15:04:05")
+	ret := "给你返回一个动态值就当前时间："+thistime
+	c.String(200, ret)
+}
+func str_p(c *gin.Context){
+	temp := c.PostForm("postmsg")
+	ret_msg := "你发送的信息为："+temp
+	c.String(200, ret_msg)
 }
 
 func handleWebSocket(c *gin.Context) {
