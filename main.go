@@ -2,7 +2,9 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
+	"os/exec"
 	"strings"
 	"time"
 	"todolist/router"
@@ -46,6 +48,7 @@ func main() {
 	r.GET("/testdb", utils.TestDB)
 	r.GET("/str", str)
 	r.POST("strp", str_p)
+	r.GET("str_f", str_fortune)
 
 	r.GET("/ws", handleWebSocket)
 	go broadcastMsg()
@@ -86,17 +89,33 @@ func rRedirect(c *gin.Context) {
 	// fmt.Println("post信息为：", message)
 	c.HTML(200, "test.html", gin.H{"message": "message"})
 }
-
-func str(c *gin.Context){
+func str(c *gin.Context) {
 	current_time := time.Now()
 	thistime := current_time.Format("2006-01-02 15:04:05")
-	ret := "给你返回一个动态值就当前时间："+thistime
+	ret := "给你返回一个动态值就当前时间：" + thistime
 	c.String(200, ret)
 }
-func str_p(c *gin.Context){
-	temp := c.PostForm("postmsg")
-	ret_msg := "你发送的信息为："+temp
+func str_p(c *gin.Context) {
+	temp := c.PostForm("source")
+	ret_msg := "你发送的信息为：" + temp
+	fmt.Println("收到消息：", temp)
 	c.String(200, ret_msg)
+}
+
+// 返回一句古诗
+func str_fortune(c *gin.Context) {
+	var ret string
+	fmt.Println("fortune test")
+	instruction := "fortune"
+	cmd := exec.Command(instruction)
+	output, err := cmd.Output()
+	if err != nil {
+		log.Fatal(err)
+		ret = "诗词获取失败"
+	}
+	fmt.Println(string(output))
+	ret = string(output)
+	c.String(200, ret)
 }
 
 func handleWebSocket(c *gin.Context) {
