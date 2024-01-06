@@ -115,7 +115,9 @@ func str_fortune(c *gin.Context) {
 	}
 	fmt.Println(string(output))
 	ret = string(output)
-	c.String(200, ret)
+	c.JSON(200, gin.H{
+		"fortune": ret,
+	})
 }
 
 func handleWebSocket(c *gin.Context) {
