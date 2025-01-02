@@ -58,7 +58,7 @@ func main() {
 	router.InitAuthen(r)
 	router.InitUserProfile(r)
 
-	r.Run(":80") // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
+	r.Run(":8000") // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 }
 
 /*以下是一些示例*/

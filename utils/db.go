@@ -78,7 +78,7 @@ func (FileShare) TableName() string {
 
 var db *gorm.DB
 var err error
-var dsn = "root:liu314314@tcp(127.0.0.1:3306)/todolist?charsetutf8mb4&parseTime=true&loc=Local"
+var dsn = "karen:liu314314@tcp(127.0.0.1:3306)/todolist?charsetutf8mb4&parseTime=true&loc=Local"
 
 // 创建表，只调用一次
 func Db_makeTable() {
